@@ -3,6 +3,7 @@
 ## Decision
 Spry lives in a single repository containing backend/, frontend/,
 database configuration (migrations, compose) and CI (.github/workflows).
+The folders and the contracts between them are in PROJECT.md.
 
 ## Why
 1. **Atomic changes.** One commit can change an API endpoint and the
