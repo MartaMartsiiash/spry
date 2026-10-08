@@ -157,11 +157,20 @@ aws-deploy: ## Deploy everything: sign-in, then the backend, then the frontend b
 
 aws-deploy-auth: ## Create/update the Cognito user pool (email + password; Google when GOOGLE_CLIENT_ID is set)
 	$(require-aws-credentials)
-	@urls="http://localhost:$(or $(FRONTEND_PORT),3000)/"; \
+	@origins="http://localhost:$(or $(FRONTEND_PORT),3000)"; \
 		site=$$($(call stack-output,$(FRONTEND_STACK),AllowedOrigins) 2>/dev/null | tr -d '[:space:]'); \
-		case "$$site" in ""|None) ;; *) urls="$$urls,$$(echo "$$site" | sed 's|,|/,|g')/" ;; esac; \
-		echo "Sign-in redirect URLs: $$urls"; \
-		test -n "$(GOOGLE_CLIENT_ID)" || echo "GOOGLE_CLIENT_ID is empty — Google sign-in stays off"; \
+		case "$$site" in ""|None) ;; *) origins="$$origins,$$site" ;; esac; \
+		callbacks=""; logouts=""; \
+		oldifs="$$IFS"; IFS=','; \
+		for origin in $$origins; do \
+			origin="$${origin%/}"; \
+			logouts="$${logouts:+$$logouts,}$$origin/"; \
+			callbacks="$${callbacks:+$$callbacks,}$$origin/auth/callback/"; \
+		done; \
+		IFS="$$oldifs"; \
+		echo "Callback URLs: $$callbacks"; \
+		echo "Logout URLs: $$logouts"; \
+		test -n "$(GOOGLE_CLIENT_ID)" || echo "GOOGLE_CLIENT_ID is empty — Continue with Google stays off until you set it and redeploy"; \
 		$(call wait-stack-idle,$(AUTH_STACK)); \
 		$(call clear-failed-create,$(AUTH_STACK)); \
 		$(AWS) cloudformation deploy \
@@ -171,19 +180,20 @@ aws-deploy-auth: ## Create/update the Cognito user pool (email + password; Googl
 			$(STACK_TAGS) \
 			--parameter-overrides \
 				"ProjectName=$(PROJECT_NAME)" \
-				"AppUrls=$$urls" \
+				"CallbackUrls=$$callbacks" \
+				"LogoutUrls=$$logouts" \
 				"GoogleClientId=$(GOOGLE_CLIENT_ID)" \
 				"GoogleClientSecret=$(GOOGLE_CLIENT_SECRET)"
-	@if [ -n "$(GOOGLE_CLIENT_ID)" ]; then \
-		echo "Google Cloud console → the OAuth client → Authorized redirect URIs must include:"; \
-		echo "  $$($(call stack-output,$(AUTH_STACK),GoogleRedirectUri) | tr -d '[:space:]')"; \
-	fi
+	@echo "Google Cloud → OAuth client (Web application):"; \
+		echo "  Authorised JavaScript origin: https://$$($(call stack-output,$(AUTH_STACK),HostedDomain) | tr -d '[:space:]')"; \
+		echo "  Authorised redirect URI:      $$($(call stack-output,$(AUTH_STACK),GoogleRedirectUri) | tr -d '[:space:]')"
 	@$(MAKE) --no-print-directory aws-auth-env
 
 aws-auth-env: ## Print the Cognito settings to put in .env for local development
 	@$(call stack-outputs,$(AUTH_STACK)) | awk -F '\t' ' \
 		$$1 == "UserPoolId" { print "COGNITO_USER_POOL_ID=" $$2 } \
 		$$1 == "UserPoolClientId" { print "COGNITO_CLIENT_ID=" $$2 } \
+		$$1 == "Issuer" { print "COGNITO_ISSUER=" $$2 } \
 		$$1 == "HostedDomain" { print "COGNITO_DOMAIN=" $$2 } \
 		$$1 == "GoogleEnabled" { print "COGNITO_GOOGLE_ENABLED=" $$2 }' | tr -d '\r'
 
@@ -317,14 +327,17 @@ aws-deploy-frontend: ## Deploy the frontend to S3 + CloudFront, built against th
 		auth_out() { printf '%s\n' "$$auth" | awk -F '\t' -v k="$$1" '$$1 == k { print $$2 }'; }; \
 		bucket=$$($(call stack-output,$(FRONTEND_STACK),BucketName) | tr -d '[:space:]'); \
 		dist=$$($(call stack-output,$(FRONTEND_STACK),DistributionId) | tr -d '[:space:]'); \
-		echo "Building the static export against $$api"; \
+		site=$$($(call stack-output,$(FRONTEND_STACK),SiteUrl) | tr -d '[:space:]'); \
+		site="$${site%/}"; \
+		echo "Building the static export against $$api (sign-in returns to $$site/auth/callback/)"; \
 		rm -rf frontend/out; \
 		docker build --target export --output type=local,dest=frontend/out \
 			--build-arg NEXT_PUBLIC_API_BASE_URL="$$api" \
-			--build-arg NEXT_PUBLIC_COGNITO_USER_POOL_ID="$$(auth_out UserPoolId)" \
+			--build-arg NEXT_PUBLIC_COGNITO_AUTHORITY="$$(auth_out Issuer)" \
 			--build-arg NEXT_PUBLIC_COGNITO_CLIENT_ID="$$(auth_out UserPoolClientId)" \
 			--build-arg NEXT_PUBLIC_COGNITO_DOMAIN="$$(auth_out HostedDomain)" \
-			--build-arg NEXT_PUBLIC_COGNITO_GOOGLE_ENABLED="$$(auth_out GoogleEnabled)" \
+			--build-arg NEXT_PUBLIC_COGNITO_REDIRECT_URI="$$site/auth/callback/" \
+			--build-arg NEXT_PUBLIC_COGNITO_LOGOUT_URI="$$site/" \
 			./frontend || exit 1; \
 		echo "Uploading to s3://$$bucket"; \
 		$(AWS) s3 sync frontend/out "s3://$$bucket" --delete --exclude "*.html" \

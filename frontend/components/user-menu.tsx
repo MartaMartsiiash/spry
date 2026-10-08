@@ -1,50 +1,34 @@
 "use client"
 
 import { LogOut } from "lucide-react"
+import Link from "next/link"
 
 import { useAuth } from "@/components/auth-provider"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { initials } from "@/lib/datetime"
 
+/** Email stays in the header itself: the lab screenshot has to show it. */
 export function UserMenu() {
-  const { user, signOut } = useAuth()
-  if (!user) return null
+  const { status, user, signOut } = useAuth()
 
-  const label = user.name ?? user.email ?? "Account"
+  if (status === "loading") return null
+
+  if (status !== "signedIn" || !user) {
+    return (
+      <Button asChild size="sm">
+        <Link href="/login/">Sign in</Link>
+      </Button>
+    )
+  }
+
+  const email = user.email ?? user.name ?? "Signed in"
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon-lg" className="rounded-full" aria-label="Account menu">
-          <Avatar className="size-9">
-            <AvatarFallback className="tint-violet text-xs font-semibold">
-              {initials(user.name ?? user.email?.split("@")[0] ?? "?")}
-            </AvatarFallback>
-          </Avatar>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-60">
-        <DropdownMenuLabel className="font-normal">
-          <p className="truncate text-sm font-semibold">{label}</p>
-          {user.email && user.email !== label ? (
-            <p className="text-muted-foreground truncate text-xs">{user.email}</p>
-          ) : null}
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={() => void signOut()}>
-          <LogOut aria-hidden />
-          Sign out
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className="flex items-center gap-2">
+      <span className="max-w-40 truncate text-sm sm:max-w-56">{email}</span>
+      <Button variant="outline" size="sm" onClick={() => void signOut()}>
+        <LogOut className="size-4" aria-hidden />
+        Sign out
+      </Button>
+    </div>
   )
 }

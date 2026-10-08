@@ -7,9 +7,9 @@ const nextConfig: NextConfig = {
   // `make aws-deploy-frontend` sets NEXT_OUTPUT=export instead, to get the
   // static files that go to S3 behind CloudFront.
   output: isExport ? "export" : "standalone",
-  // A folder per route (meetings/new/index.html) is served at a clean URL by
-  // any static host, with no rewrite from /meetings/new to meetings/new.html.
-  trailingSlash: isExport,
+  // Cognito callback URLs must match exactly, including the trailing slash
+  // (/login/, /auth/callback/). The export and local dev use the same paths.
+  trailingSlash: true,
 };
 
 export default nextConfig;

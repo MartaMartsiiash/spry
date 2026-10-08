@@ -1,9 +1,12 @@
-import { AuthPage } from "@/components/auth-page";
+"use client"
 
-export const metadata = {
-  title: "Log in — SuccessfulSuccess",
-};
+import { useEffect } from "react"
 
+/** The meetings list lives at /today/. Signed-out visitors are sent on to /login/. */
 export default function Home() {
-  return <AuthPage />;
+  useEffect(() => {
+    window.location.replace("/today/")
+  }, [])
+
+  return null
 }
