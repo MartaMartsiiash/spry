@@ -71,13 +71,18 @@ function OidcBridge({ children }: { children: React.ReactNode }) {
     syncMe(idToken).catch((error) => console.warn("Profile sync failed", error))
   }, [idToken, sub])
 
-  const signIn = useCallback(() => oidc.signinRedirect(), [oidc])
+  // prompt=login forces Cognito's form. Without it an existing hosted-UI
+  // cookie signs the same user straight back in, so Sign out looks broken.
+  const signIn = useCallback(() => oidc.signinRedirect({ prompt: "login" }), [oidc])
 
   const signOut = useCallback(async () => {
     queryClient.clear()
     syncedSub.current = null
-    await oidc.removeUser()
-    window.location.assign(cognitoLogoutUrl())
+    try {
+      await oidc.removeUser()
+    } finally {
+      window.location.assign(cognitoLogoutUrl())
+    }
   }, [oidc, queryClient])
 
   const value = useMemo<AuthContextValue>(() => {
