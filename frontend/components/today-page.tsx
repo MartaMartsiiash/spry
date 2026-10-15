@@ -7,6 +7,7 @@ import { DeleteMeetingDialog } from "@/components/delete-meeting-dialog"
 import { MeetingDetailsDialog } from "@/components/meeting-details-dialog"
 import { MeetingFormDialog } from "@/components/meeting-form-dialog"
 import { MeetingList } from "@/components/meeting-list"
+import { RequestReportButton } from "@/components/request-report-button"
 import { useMeetings } from "@/hooks/use-meetings"
 import { formatLongDate } from "@/lib/datetime"
 import type { Meeting } from "@/lib/types"
@@ -57,11 +58,14 @@ export function TodayPage({ initialDialogOpen = false }: { initialDialogOpen?: b
               <p className="text-muted-foreground mt-2 text-base">{formatLongDate(data.date)}</p>
             ) : null}
           </div>
-          {data ? (
-            <span className="tint-violet inline-flex items-center rounded-full px-3.5 py-1.5 text-sm font-semibold tabular-nums">
-              {count} {count === 1 ? "meeting" : "meetings"}
-            </span>
-          ) : null}
+          <div className="flex flex-wrap items-center gap-2">
+            {data ? (
+              <span className="tint-violet inline-flex items-center rounded-full px-3.5 py-1.5 text-sm font-semibold tabular-nums">
+                {count} {count === 1 ? "meeting" : "meetings"}
+              </span>
+            ) : null}
+            <RequestReportButton />
+          </div>
         </div>
 
         <MeetingList onCreate={onCreate} onView={onView} onEdit={onEdit} onDelete={onDelete} />

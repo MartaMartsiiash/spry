@@ -1,0 +1,162 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Meetings API on Lambda (function URL) for the AWS free-plan / new experience.
+  The database is an Aurora Express cluster created outside this stack
+  (CloudFormation cannot set WithExpressConfiguration). Lambda is not in a VPC
+  so it can reach the Express internet access gateway with IAM database auth.
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: successfulsuccess
+
+  ImageUri:
+    Type: String
+
+  Architecture:
+    Type: String
+    Default: arm64
+    AllowedValues: [x86_64, arm64]
+
+  MemorySize:
+    Type: Number
+    Default: 512
+
+  DatabaseHost:
+    Type: String
+    Description: Aurora Express cluster endpoint (writer).
+
+  DatabaseName:
+    Type: String
+    Default: postgres
+
+  DatabaseUser:
+    Type: String
+    Default: postgres
+
+  AppTimezone:
+    Type: String
+    Default: Europe/Kyiv
+
+  CorsOrigins:
+    Type: String
+    Default: "*"
+
+  LogLevel:
+    Type: String
+    Default: INFO
+    AllowedValues: [DEBUG, INFO, WARNING, ERROR]
+
+  CognitoUserPoolId:
+    Type: String
+
+  CognitoClientId:
+    Type: String
+
+Resources:
+  FunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: { Service: lambda.amazonaws.com }
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: rds-iam-connect
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: rds-db:connect
+                Resource: !Sub "arn:${AWS::Partition}:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:*/*"
+        # The report button writes requests/<id>.json. It cannot write
+        # reports/, so that upload cannot wake the mailer.
+        - PolicyName: report-requests
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: s3:PutObject
+                Resource: !Sub "arn:${AWS::Partition}:s3:::${ProjectName}-reports-${AWS::AccountId}/requests/*"
+      Tags:
+        - Key: PROJECT_NAME
+          Value: !Ref ProjectName
+
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${ProjectName}-backend"
+      RetentionInDays: 7
+      Tags:
+        - Key: PROJECT_NAME
+          Value: !Ref ProjectName
+
+  ApiFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "${ProjectName}-backend"
+      Description: Meetings API (FastAPI through Mangum), Aurora Express + IAM auth
+      PackageType: Image
+      Code:
+        ImageUri: !Ref ImageUri
+      Architectures:
+        - !Ref Architecture
+      Role: !GetAtt FunctionRole.Arn
+      MemorySize: !Ref MemorySize
+      Timeout: 60
+      LoggingConfig:
+        LogGroup: !Ref LogGroup
+      Environment:
+        Variables:
+          DATABASE_URL: !Sub "postgresql+asyncpg://${DatabaseUser}@${DatabaseHost}:5432/${DatabaseName}"
+          DATABASE_IAM_AUTH: "true"
+          APP_TIMEZONE: !Ref AppTimezone
+          # Deterministic name of the reports bucket. The bucket is created by
+          # the reports stack; until then the button gets an error from S3.
+          REPORTS_BUCKET: !Sub "${ProjectName}-reports-${AWS::AccountId}"
+          CORS_ORIGINS: !Ref CorsOrigins
+          LOG_LEVEL: !Ref LogLevel
+          COGNITO_REGION: !Ref AWS::Region
+          COGNITO_USER_POOL_ID: !Ref CognitoUserPoolId
+          COGNITO_CLIENT_ID: !Ref CognitoClientId
+      Tags:
+        - Key: PROJECT_NAME
+          Value: !Ref ProjectName
+
+  FunctionUrl:
+    Type: AWS::Lambda::Url
+    Properties:
+      TargetFunctionArn: !GetAtt ApiFunction.Arn
+      AuthType: NONE
+      InvokeMode: BUFFERED
+
+  FunctionUrlPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref ApiFunction
+      Action: lambda:InvokeFunctionUrl
+      Principal: "*"
+      FunctionUrlAuthType: NONE
+
+  FunctionUrlInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref ApiFunction
+      Action: lambda:InvokeFunction
+      Principal: "*"
+      InvokedViaFunctionUrl: true
+
+Outputs:
+  ApiUrl:
+    Description: HTTPS base URL of the backend
+    Value: !Sub ["https://${Host}", {Host: !Select [2, !Split ["/", !GetAtt FunctionUrl.FunctionUrl]]}]
+  HealthUrl:
+    Value: !Sub ["https://${Host}/health", {Host: !Select [2, !Split ["/", !GetAtt FunctionUrl.FunctionUrl]]}]
+  FunctionName:
+    Value: !Ref ApiFunction
+  LogGroupName:
+    Value: !Ref LogGroup

@@ -10,6 +10,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.auth import AuthError, AuthNotConfiguredError
 from app.services.meeting import MeetingNotFoundError
+from app.services.report_request import ReportsNotConfiguredError, ReportsUnavailableError
 
 HTTP_422_UNPROCESSABLE = 422
 
@@ -69,6 +70,14 @@ def register_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(MeetingNotFoundError)
     async def _not_found(_: Request, exc: MeetingNotFoundError) -> JSONResponse:
         return error_response(status.HTTP_404_NOT_FOUND, str(exc))
+
+    @app.exception_handler(ReportsNotConfiguredError)
+    async def _reports_not_configured(_: Request, exc: ReportsNotConfiguredError) -> JSONResponse:
+        return error_response(status.HTTP_503_SERVICE_UNAVAILABLE, str(exc))
+
+    @app.exception_handler(ReportsUnavailableError)
+    async def _reports_unavailable(_: Request, exc: ReportsUnavailableError) -> JSONResponse:
+        return error_response(status.HTTP_503_SERVICE_UNAVAILABLE, str(exc))
 
     @app.exception_handler(RequestValidationError)
     async def _validation(_: Request, exc: RequestValidationError) -> JSONResponse:

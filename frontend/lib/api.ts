@@ -98,6 +98,20 @@ export function deleteMeeting(id: string) {
   return request<void>(`/api/v1/meetings/${id}`, { method: "DELETE" })
 }
 
+export type ReportAccepted = {
+  id: string
+  week: string
+  status: "queued"
+}
+
+/** 202: the report is queued. The CSV and the email come later. */
+export function requestWeeklyReport() {
+  return request<ReportAccepted>("/api/v1/reports", {
+    method: "POST",
+    body: "{}",
+  })
+}
+
 export function getMe() {
   return request<UserProfile>("/api/v1/me")
 }

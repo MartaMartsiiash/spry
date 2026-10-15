@@ -11,9 +11,16 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     database_url: str = "postgresql+asyncpg://app:app@db:5432/meetings"
+    # When true (Aurora Express on the AWS free plan), connections use an IAM
+    # auth token as the password. Host/user/db still come from database_url.
+    database_iam_auth: bool = False
+    aws_region: str = "eu-north-1"
     app_timezone: str = "Europe/Kyiv"
     cors_origins: str = "http://localhost:3000"
     log_level: str = "INFO"
+    # Weekly-report button writes requests/<id>.json here. Empty locally, so
+    # the button answers 503 until the reports stack is deployed.
+    reports_bucket: str = ""
     run_migrations_on_start: bool = True
     version: str = Field(default="1.0.0")
 

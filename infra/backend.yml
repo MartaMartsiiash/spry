@@ -234,6 +234,16 @@ Resources:
       ManagedPolicyArns:
         # Write logs, and manage the network interfaces a VPC function needs.
         - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+      Policies:
+        # The report button writes requests/<id>.json through the S3 gateway
+        # endpoint. It cannot write reports/, so it cannot wake the mailer.
+        - PolicyName: report-requests
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: s3:PutObject
+                Resource: !Sub "arn:${AWS::Partition}:s3:::${ProjectName}-reports-${AWS::AccountId}/requests/*"
       Tags:
         - Key: PROJECT_NAME
           Value: !Ref ProjectName
@@ -282,6 +292,9 @@ Resources:
           APP_TIMEZONE: !Ref AppTimezone
           CORS_ORIGINS: !Ref CorsOrigins
           LOG_LEVEL: !Ref LogLevel
+          # Deterministic name of the reports bucket. The bucket is created by
+          # the reports stack; until then the button gets an error from S3.
+          REPORTS_BUCKET: !Sub "${ProjectName}-reports-${AWS::AccountId}"
           COGNITO_REGION: !Ref AWS::Region
           COGNITO_USER_POOL_ID: !Ref CognitoUserPoolId
           COGNITO_CLIENT_ID: !Ref CognitoClientId

@@ -52,6 +52,8 @@ Conditions:
   HasZone: !And
     - !Condition HasDomain
     - !Not [!Equals [!Ref HostedZoneId, ""]]
+  # CloudFront-scoped WAFv2 APIs only exist in us-east-1.
+  IsUsEast1: !Equals [!Ref "AWS::Region", us-east-1]
 
 Resources:
   Bucket:
@@ -116,6 +118,7 @@ Resources:
   # rules can be added later at no extra cost.
   WebAcl:
     Type: AWS::WAFv2::WebACL
+    Condition: IsUsEast1
     Properties:
       Name: !Sub "${ProjectName}-frontend"
       Scope: CLOUDFRONT
@@ -135,7 +138,7 @@ Resources:
       DistributionConfig:
         Comment: !Sub "${ProjectName} frontend"
         Enabled: true
-        WebACLId: !GetAtt WebAcl.Arn
+        WebACLId: !If [IsUsEast1, !GetAtt WebAcl.Arn, !Ref "AWS::NoValue"]
         HttpVersion: http2and3
         IPV6Enabled: true
         DefaultRootObject: index.html

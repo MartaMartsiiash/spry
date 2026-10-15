@@ -34,11 +34,18 @@ AWS ?= docker run --rm \
 	-e AWS_DEFAULT_REGION=$(AWS_REGION) \
 	-v $(CURDIR):/aws -w /aws \
 	amazon/aws-cli:latest
+# `aws login --profile spry` keeps a rotating session on this machine. The
+# container CLI cannot see that session, so a named profile uses the host CLI.
+ifneq ($(AWS_PROFILE),)
+AWS := aws
+export AWS_PROFILE
+endif
 
 AUTH_STACK ?= $(PROJECT_NAME)-auth
 APP_STACK ?= $(PROJECT_NAME)-backend
 ECR_STACK ?= $(PROJECT_NAME)-ecr
 FRONTEND_STACK ?= $(PROJECT_NAME)-frontend
+REPORTS_STACK ?= $(PROJECT_NAME)-reports
 IMAGE_TAG ?= latest
 # x86_64 or arm64. arm64 is ~20% cheaper on Lambda and builds natively on
 # Apple Silicon; the image platform is derived from it so the two cannot drift.
@@ -73,17 +80,22 @@ wait-stack-idle = while status=$$($(AWS) cloudformation describe-stacks --stack-
 # CloudFormation can only delete. It holds no resources, so clear it and let the
 # deploy start over.
 # $(call clear-failed-create,<stack>)
-clear-failed-create = if [ "$$($(AWS) cloudformation describe-stacks --stack-name $(1) \
-		--query 'Stacks[0].StackStatus' --output text 2>/dev/null | tr -d '[:space:]')" = ROLLBACK_COMPLETE ]; then \
-		echo "$(1) failed to create earlier — deleting it before retrying"; \
+clear-failed-create = status=$$($(AWS) cloudformation describe-stacks --stack-name $(1) \
+		--query 'Stacks[0].StackStatus' --output text 2>/dev/null | tr -d '[:space:]'); \
+		case "$$status" in ROLLBACK_COMPLETE|REVIEW_IN_PROGRESS) \
+		echo "$(1) is $$status — deleting it before retrying"; \
 		$(AWS) cloudformation delete-stack --stack-name $(1) && \
-		$(AWS) cloudformation wait stack-delete-complete --stack-name $(1); fi
+		$(AWS) cloudformation wait stack-delete-complete --stack-name $(1);; esac
 
 # Fail early and clearly when .env has no credentials in it.
 define require-aws-credentials
-	@test -n "$(AWS_ACCESS_KEY_ID)" -a -n "$(AWS_SECRET_ACCESS_KEY)" || { \
-		echo "AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY are empty — set them in .env"; \
-		exit 1; }
+	@if [ -z "$(AWS_ACCESS_KEY_ID)" ] || [ -z "$(AWS_SECRET_ACCESS_KEY)" ]; then \
+		if [ -z "$(AWS_PROFILE)" ]; then \
+			echo "AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY are empty — set them in .env"; \
+			echo "After aws login, pass the profile: make <target> AWS_PROFILE=spry"; \
+			exit 1; \
+		fi; \
+	fi
 endef
 
 define require-db-password
@@ -93,8 +105,9 @@ define require-db-password
 endef
 
 .PHONY: help up up-build down down-v logs ps migrate revision seed test lint fmt shell-backend psql \
-        aws-whoami aws-deploy aws-deploy-auth aws-auth-env aws-ecr aws-push aws-deploy-backend aws-migrate aws-url aws-status aws-logs \
-        aws-frontend-cert aws-deploy-frontend aws-frontend-url aws-destroy
+        aws-whoami aws-deploy aws-deploy-auth aws-auth-env aws-ecr aws-push aws-deploy-backend \
+        aws-deploy-backend-express aws-deploy-backend-vpc aws-migrate aws-url aws-status aws-logs \
+        aws-frontend-cert aws-deploy-frontend aws-frontend-url aws-deploy-reports report-now report-logs aws-destroy
 
 help:
 	@grep -hE '^[a-z-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -215,7 +228,69 @@ aws-push: aws-ecr ## Build the backend Lambda image and push it to ECR
 			-f backend/Dockerfile.lambda -t "$$repo:$(IMAGE_TAG)" ./backend; \
 		docker push "$$repo:$(IMAGE_TAG)"
 
-aws-deploy-backend: aws-push ## Deploy the backend to AWS (Lambda function URL + Aurora Serverless), then migrate
+aws-deploy-backend: aws-push ## Deploy the backend, then migrate. Keeps Aurora Express when that is what is already running.
+	$(require-aws-credentials)
+	@fn=$$($(call stack-output,$(APP_STACK),FunctionName) 2>/dev/null | tr -d '[:space:]'); \
+		vpc=""; \
+		if [ -n "$$fn" ] && [ "$$fn" != "None" ]; then \
+			vpc=$$($(AWS) lambda get-function-configuration --function-name "$$fn" \
+				--query 'VpcConfig.VpcId' --output text 2>/dev/null | tr -d '[:space:]'); \
+		fi; \
+		if [ -n "$$fn" ] && [ "$$fn" != "None" ] && { [ -z "$$vpc" ] || [ "$$vpc" = "None" ]; }; then \
+			echo "The API is Aurora Express (no VPC). Updating that function. A second database is not created."; \
+			$(MAKE) --no-print-directory aws-deploy-backend-express; \
+		else \
+			$(MAKE) --no-print-directory aws-deploy-backend-vpc; \
+		fi
+
+aws-deploy-backend-express: ## Update the Aurora Express API. Does not create or replace the database.
+	$(require-aws-credentials)
+	@fn=$$($(call stack-output,$(APP_STACK),FunctionName) | tr -d '[:space:]'); \
+		test -n "$$fn" -a "$$fn" != "None" || { echo "No backend function to update"; exit 1; }; \
+		url=$$($(AWS) lambda get-function-configuration --function-name "$$fn" \
+			--query 'Environment.Variables.DATABASE_URL' --output text | tr -d '[:space:]'); \
+		user=$$(printf '%s' "$$url" | sed -E 's#^postgresql\+asyncpg://([^@]+)@.*#\1#'); \
+		host=$$(printf '%s' "$$url" | sed -E 's#^postgresql\+asyncpg://[^@]+@([^:/]+):.*#\1#'); \
+		name=$$(printf '%s' "$$url" | sed -E 's#^.*/([^/?]+).*#\1#'); \
+		tz=$$($(AWS) lambda get-function-configuration --function-name "$$fn" \
+			--query 'Environment.Variables.APP_TIMEZONE' --output text | tr -d '[:space:]'); \
+		cors=$$($(AWS) lambda get-function-configuration --function-name "$$fn" \
+			--query 'Environment.Variables.CORS_ORIGINS' --output text | tr -d '[:space:]'); \
+		log=$$($(AWS) lambda get-function-configuration --function-name "$$fn" \
+			--query 'Environment.Variables.LOG_LEVEL' --output text | tr -d '[:space:]'); \
+		pool=$$($(AWS) lambda get-function-configuration --function-name "$$fn" \
+			--query 'Environment.Variables.COGNITO_USER_POOL_ID' --output text | tr -d '[:space:]'); \
+		client=$$($(AWS) lambda get-function-configuration --function-name "$$fn" \
+			--query 'Environment.Variables.COGNITO_CLIENT_ID' --output text | tr -d '[:space:]'); \
+		repo=$$($(call stack-output,$(ECR_STACK),RepositoryUri) | tr -d '[:space:]'); \
+		digest=$$($(AWS) ecr describe-images --repository-name "$${repo#*/}" \
+			--image-ids imageTag=$(IMAGE_TAG) --query 'imageDetails[0].imageDigest' \
+			--output text | tr -d '[:space:]'); \
+		test -n "$$digest" -a "$$digest" != "None" || { echo "No image in ECR — run: make aws-push"; exit 1; }; \
+		echo "express host=$$host db=$$name user=$$user image=$$repo@$$digest arch=$(AWS_LAMBDA_ARCH)"; \
+		$(call wait-stack-idle,$(APP_STACK)); \
+		$(AWS) cloudformation deploy \
+			--stack-name $(APP_STACK) \
+			--template-file infra/backend-express.yml \
+			--capabilities CAPABILITY_IAM \
+			--no-fail-on-empty-changeset \
+			$(STACK_TAGS) \
+			--parameter-overrides \
+				"ProjectName=$(PROJECT_NAME)" \
+				ImageUri="$$repo@$$digest" \
+				"Architecture=$(AWS_LAMBDA_ARCH)" \
+				"DatabaseHost=$$host" \
+				"DatabaseName=$$name" \
+				"DatabaseUser=$$user" \
+				"AppTimezone=$$tz" \
+				"CorsOrigins=$$cors" \
+				"LogLevel=$$log" \
+				"CognitoUserPoolId=$$pool" \
+				"CognitoClientId=$$client"
+	@$(MAKE) --no-print-directory aws-migrate
+	@$(MAKE) --no-print-directory aws-url
+
+aws-deploy-backend-vpc: ## Create or update the private-VPC backend (Lambda + Aurora Serverless), then migrate
 	$(require-aws-credentials)
 	$(require-db-password)
 	@pool=$$($(call stack-output,$(AUTH_STACK),UserPoolId) 2>/dev/null | tr -d '[:space:]'); \
@@ -361,10 +436,111 @@ aws-deploy-frontend: ## Deploy the frontend to S3 + CloudFront, built against th
 aws-frontend-url: ## Print the deployed site URL
 	@$(call stack-output,$(FRONTEND_STACK),SiteUrl)
 
+aws-deploy-reports: ## Deploy the weekly report (queue, schedule, builder, mailer, SES)
+	$(require-aws-credentials)
+	@test -n "$(REPORT_RECIPIENT)" || { \
+		echo "REPORT_RECIPIENT is empty — set it in .env (the inbox that receives the report)"; exit 1; }
+	@fn=$$($(call stack-output,$(APP_STACK),FunctionName) 2>/dev/null | tr -d '[:space:]'); \
+		test -n "$$fn" -a "$$fn" != "None" || { echo "No backend function — run: make aws-deploy-backend"; exit 1; }; \
+		vpc=$$($(AWS) lambda get-function-configuration --function-name "$$fn" \
+			--query 'VpcConfig.VpcId' --output text | tr -d '[:space:]'); \
+		net=""; \
+		if [ -z "$$vpc" ] || [ "$$vpc" = "None" ]; then \
+			echo "Aurora Express: the builder stays outside a VPC, same as the API."; \
+		else \
+			subnets=$$($(AWS) lambda get-function-configuration --function-name "$$fn" \
+				--query 'VpcConfig.SubnetIds' --output text | tr '[:space:]' ',' | sed 's/,*$$//'); \
+			sg=$$($(AWS) lambda get-function-configuration --function-name "$$fn" \
+				--query 'VpcConfig.SecurityGroupIds[0]' --output text | tr -d '[:space:]'); \
+			tables=$$($(AWS) ec2 describe-route-tables --filters Name=vpc-id,Values=$$vpc \
+				--query 'RouteTables[].RouteTableId' --output text | tr '[:space:]' ',' | sed 's/,*$$//'); \
+			endpoint=$$($(AWS) ec2 describe-vpc-endpoints \
+				--filters Name=vpc-id,Values=$$vpc Name=service-name,Values=com.amazonaws.$(AWS_REGION).s3 \
+				Name=vpc-endpoint-type,Values=Gateway \
+				--query 'VpcEndpoints[?State==`available` || State==`pending`].VpcEndpointId | [0]' \
+				--output text | tr -d '[:space:]'); \
+			create_endpoint=true; \
+			if [ -n "$$endpoint" ] && [ "$$endpoint" != "None" ]; then \
+				create_endpoint=false; \
+				echo "S3 gateway endpoint already exists ($$endpoint) — not creating another"; \
+			fi; \
+			net="VpcId=$$vpc SubnetIds=$$subnets SecurityGroupId=$$sg RouteTableIds=$$tables CreateS3Endpoint=$$create_endpoint"; \
+			echo "vpc=$$vpc subnets=$$subnets sg=$$sg"; \
+		fi; \
+		dburl=$$($(AWS) lambda get-function-configuration --function-name "$$fn" \
+			--query 'Environment.Variables.DATABASE_URL' --output text | tr -d '[:space:]'); \
+		iam=$$($(AWS) lambda get-function-configuration --function-name "$$fn" \
+			--query 'Environment.Variables.DATABASE_IAM_AUTH' --output text | tr -d '[:space:]'); \
+		case "$$iam" in true|True|TRUE) iam=true ;; *) iam=false ;; esac; \
+		tz=$$($(AWS) lambda get-function-configuration --function-name "$$fn" \
+			--query 'Environment.Variables.APP_TIMEZONE' --output text | tr -d '[:space:]'); \
+		case "$$tz" in ""|None) tz="$(or $(APP_TIMEZONE),Europe/Kyiv)" ;; esac; \
+		repo=$$($(call stack-output,$(ECR_STACK),RepositoryUri) | tr -d '[:space:]'); \
+		digest=$$($(AWS) ecr describe-images --repository-name "$${repo#*/}" \
+			--image-ids imageTag=$(IMAGE_TAG) --query 'imageDetails[0].imageDigest' \
+			--output text | tr -d '[:space:]'); \
+		test -n "$$digest" -a "$$digest" != "None" || { echo "No image in ECR — run: make aws-push"; exit 1; }; \
+		echo "image=$$repo@$$digest arch=$(AWS_LAMBDA_ARCH)"; \
+		echo "If you changed Python since the last push, run make aws-push first. This target does not rebuild the image."; \
+		$(call wait-stack-idle,$(REPORTS_STACK)); \
+		$(call clear-failed-create,$(REPORTS_STACK)); \
+		$(AWS) cloudformation deploy \
+			--stack-name $(REPORTS_STACK) \
+			--template-file infra/reports.yml \
+			--capabilities CAPABILITY_IAM \
+			--no-fail-on-empty-changeset \
+			$(STACK_TAGS) \
+			--parameter-overrides \
+				"ProjectName=$(PROJECT_NAME)" \
+				$$net \
+				"ImageUri=$$repo@$$digest" \
+				"Architecture=$(AWS_LAMBDA_ARCH)" \
+				"DatabaseUrl=$$dburl" \
+				"DatabaseIamAuth=$$iam" \
+				"AppTimezone=$$tz" \
+				"SenderDomain=$(REPORT_SENDER_DOMAIN)" \
+				"RecipientEmail=$(REPORT_RECIPIENT)" \
+				"ReportFailWeek=$(REPORT_FAIL_WEEK)" \
+				"ScheduleExpression=$(or $(SCHEDULE_EXPRESSION),cron(0 7 ? * MON *))"
+	@echo ""; \
+		if [ -n "$(REPORT_SENDER_DOMAIN)" ]; then \
+			echo "Add these three CNAME records at the DNS host for $(REPORT_SENDER_DOMAIN)."; \
+			echo "SES becomes Verified a few minutes after they resolve."; \
+			$(call stack-outputs,$(REPORTS_STACK)) | awk -F '\t' ' \
+				$$1 ~ /^DkimName/ { name[substr($$1, 9)] = $$2 } \
+				$$1 ~ /^DkimValue/ { value[substr($$1, 10)] = $$2 } \
+				END { for (i = 1; i <= 3; i++) if (name[i] != "") print "  " name[i] "  ->  " value[i] }'; \
+			echo "The report is sent from reports@$(REPORT_SENDER_DOMAIN)."; \
+		else \
+			echo "No domain is set. The report is sent from $(REPORT_RECIPIENT)."; \
+			echo "There are no DKIM records to add."; \
+		fi; \
+		echo ""; \
+		echo "Two messages arrive at $(REPORT_RECIPIENT). Open both and confirm:"; \
+		echo "  1. Amazon SES — verify this address (the sandbox can only send to verified recipients)."; \
+		echo "  2. AWS Notification — confirm the dead-letter alarm. Until you do, a failed report emails nobody."; \
+		bucket=$$($(call stack-output,$(REPORTS_STACK),ReportsBucketName) | tr -d '[:space:]'); \
+		echo "After a report: aws s3 ls s3://$$bucket/reports/ --recursive"
+
+report-now: ## Queue one report: make report-now WEEK=2026-W41
+	$(require-aws-credentials)
+	@printf '%s\n' "$(WEEK)" | grep -Eq '^[0-9]{4}-W[0-9]{1,2}$$' || { \
+		echo "Usage: make report-now WEEK=2026-W41"; exit 1; }
+	@url=$$($(call stack-output,$(REPORTS_STACK),ReportQueueUrl) | tr -d '[:space:]'); \
+		echo "Queueing week $(WEEK)"; \
+		$(AWS) sqs send-message --queue-url "$$url" \
+			--message-body '{"week":"$(WEEK)","source":"manual"}' \
+			--query MessageId --output text
+
+report-logs: ## Show recent builder and mailer log lines
+	$(require-aws-credentials)
+	@$(AWS) logs tail /aws/lambda/$(PROJECT_NAME)-report-builder --since 30m --format short
+	@$(AWS) logs tail /aws/lambda/$(PROJECT_NAME)-report-mailer --since 30m --format short
+
 aws-destroy: ## Delete every stack, including the database and its data
 	$(require-aws-credentials)
-	@printf 'Delete %s, %s, %s and %s? The Aurora cluster and all its data, and every user account, go with them (no snapshot). Type yes: ' \
-		"$(FRONTEND_STACK)" "$(APP_STACK)" "$(AUTH_STACK)" "$(ECR_STACK)"; \
+	@printf 'Delete %s, %s, %s, %s and %s? The Aurora cluster and all its data, and every user account, go with them (no snapshot). Type yes: ' \
+		"$(REPORTS_STACK)" "$(FRONTEND_STACK)" "$(APP_STACK)" "$(AUTH_STACK)" "$(ECR_STACK)"; \
 		read answer; test "$$answer" = "yes" || { echo "Aborted."; exit 1; }
 	@bucket=$$($(call stack-output,$(FRONTEND_STACK),BucketName) 2>/dev/null | tr -d '[:space:]'); \
 		if [ -n "$$bucket" ] && [ "$$bucket" != "None" ]; then \
@@ -373,6 +549,16 @@ aws-destroy: ## Delete every stack, including the database and its data
 		fi
 	-$(AWS) cloudformation delete-stack --stack-name $(FRONTEND_STACK)
 	-$(AWS) cloudformation wait stack-delete-complete --stack-name $(FRONTEND_STACK)
+	@if $(AWS) cloudformation describe-stacks --stack-name $(REPORTS_STACK) >/dev/null 2>&1; then \
+		reports_bucket=$$($(call stack-output,$(REPORTS_STACK),ReportsBucketName) | tr -d '[:space:]'); \
+		if [ -n "$$reports_bucket" ] && [ "$$reports_bucket" != "None" ]; then \
+			echo "Emptying s3://$$reports_bucket"; \
+			$(AWS) s3 rm "s3://$$reports_bucket" --recursive --only-show-errors || true; \
+		fi; \
+		echo "Deleting $(REPORTS_STACK)"; \
+		$(AWS) cloudformation delete-stack --stack-name $(REPORTS_STACK); \
+		$(AWS) cloudformation wait stack-delete-complete --stack-name $(REPORTS_STACK); \
+	fi
 	@echo "Deleting $(APP_STACK) — Lambda releases its VPC network interfaces slowly, allow ~20 minutes."
 	$(AWS) cloudformation delete-stack --stack-name $(APP_STACK)
 	$(AWS) cloudformation wait stack-delete-complete --stack-name $(APP_STACK)
