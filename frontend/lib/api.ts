@@ -1,10 +1,12 @@
 import { clearLocalSession, getAccessToken } from "@/lib/auth"
 import type {
+  AiSuggestion,
   ApiErrorBody,
   ApiErrorDetail,
   Meeting,
   MeetingCreateInput,
   MeetingList,
+  ParsedAgenda,
   UserProfile,
 } from "@/lib/types"
 
@@ -96,6 +98,82 @@ export function updateMeeting(id: string, payload: MeetingCreateInput) {
 
 export function deleteMeeting(id: string) {
   return request<void>(`/api/v1/meetings/${id}`, { method: "DELETE" })
+}
+
+export function saveMeetingAgenda(
+  id: string,
+  payload: { agenda: ParsedAgenda; ai_suggestion?: AiSuggestion | null },
+) {
+  return request<Meeting>(`/api/v1/meetings/${id}/agenda`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  })
+}
+
+export const AGENDA_PARSER_URL =
+  process.env.NEXT_PUBLIC_AGENDA_PARSER_URL?.replace(/\/$/, "") ?? ""
+
+export type ParseAgendaResponse = {
+  agenda: ParsedAgenda
+  model: string
+  prompt_version: string
+}
+
+/** Calls the agenda-parser Lambda URL (not the main API). Supports AbortSignal. */
+export async function parseAgendaText(
+  text: string,
+  today: string,
+  tz: string,
+  signal?: AbortSignal,
+): Promise<ParseAgendaResponse> {
+  if (!AGENDA_PARSER_URL) {
+    throw new ApiError(
+      0,
+      "parser_not_configured",
+      "Agenda parser URL is not configured (NEXT_PUBLIC_AGENDA_PARSER_URL).",
+      [],
+    )
+  }
+  const token = await getAccessToken()
+  let response: Response
+  try {
+    response = await fetch(AGENDA_PARSER_URL, {
+      method: "POST",
+      signal,
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ text, today, tz }),
+    })
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") {
+      throw new ApiError(0, "aborted", "Parsing cancelled.", [])
+    }
+    throw new ApiError(0, "network_error", "Could not reach the agenda parser.", [])
+  }
+
+  if (response.status === 401) {
+    void clearLocalSession()
+  }
+
+  const payload = await response.json().catch(() => null)
+  if (!response.ok) {
+    const message =
+      (payload && typeof payload === "object" && "error" in payload
+        ? String((payload as { error: unknown }).error)
+        : null) || `Parse failed (${response.status}).`
+    const code =
+      response.status === 413
+        ? "payload_too_large"
+        : response.status === 422
+          ? "parse_failed"
+          : response.status === 429
+            ? "throttled"
+            : "parser_error"
+    throw new ApiError(response.status, code, message, [])
+  }
+  return payload as ParseAgendaResponse
 }
 
 export type ReportAccepted = {

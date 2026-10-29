@@ -1,4 +1,7 @@
 from app.schemas.meeting import (
+    AgendaWrite,
+    AiSuggestionWrite,
+    MeetingAgendaSave,
     MeetingCreate,
     MeetingList,
     MeetingRead,
@@ -9,6 +12,9 @@ from app.schemas.meeting import (
 )
 
 __all__ = [
+    "AgendaWrite",
+    "AiSuggestionWrite",
+    "MeetingAgendaSave",
     "MeetingCreate",
     "MeetingList",
     "MeetingRead",

@@ -11,7 +11,7 @@ from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Meeting, Participant
-from app.schemas import MeetingCreate
+from app.schemas import MeetingAgendaSave, MeetingCreate
 
 
 class MeetingRepository:
@@ -83,6 +83,15 @@ class MeetingRepository:
             Participant(name=p.name, email=p.email, position=index)
             for index, p in enumerate(payload.participants)
         ]
+        await self.session.commit()
+        await self.session.refresh(meeting)
+        return meeting
+
+    async def save_agenda(self, meeting: Meeting, payload: MeetingAgendaSave) -> Meeting:
+        meeting.agenda = payload.agenda.model_dump(mode="json")
+        meeting.ai_suggestion = (
+            payload.ai_suggestion.model_dump(mode="json") if payload.ai_suggestion else None
+        )
         await self.session.commit()
         await self.session.refresh(meeting)
         return meeting

@@ -1,7 +1,8 @@
 """Pydantic request/response models for the meetings API."""
 
 import uuid
-from datetime import datetime
+from datetime import date, datetime
+from typing import Any
 
 from pydantic import (
     BaseModel,
@@ -16,6 +17,42 @@ from pydantic import (
 from app.config import settings
 
 MAX_PARTICIPANTS = 50
+
+
+class AgendaItemWrite(BaseModel):
+    topic: str = Field(min_length=1, max_length=500)
+    owner: str | None = Field(default=None, max_length=200)
+    minutes: int | None = Field(default=None, ge=1, le=480)
+
+
+class ActionItemWrite(BaseModel):
+    task: str = Field(min_length=1, max_length=500)
+    owner: str | None = Field(default=None, max_length=200)
+    due: date | None = None
+
+
+class AgendaWrite(BaseModel):
+    """What the user confirms on Save — same shape as the parser output."""
+
+    title: str | None = Field(default=None, max_length=200)
+    starts_at: str | None = None
+    duration_minutes: int | None = Field(default=None, ge=1, le=600)
+    items: list[AgendaItemWrite] = Field(default_factory=list)
+    action_items: list[ActionItemWrite] = Field(default_factory=list)
+    language: str = Field(min_length=1, max_length=16)
+
+
+class AiSuggestionWrite(BaseModel):
+    """Snapshot of the model output stored next to the final agenda."""
+
+    agenda: AgendaWrite
+    model: str = Field(min_length=1, max_length=120)
+    prompt_version: str = Field(min_length=1, max_length=64)
+
+
+class MeetingAgendaSave(BaseModel):
+    agenda: AgendaWrite
+    ai_suggestion: AiSuggestionWrite | None = None
 
 
 class ParticipantCreate(BaseModel):
@@ -103,6 +140,8 @@ class MeetingRead(BaseModel):
     starts_at: datetime
     ends_at: datetime
     participants: list[ParticipantRead]
+    agenda: dict[str, Any] | None = None
+    ai_suggestion: dict[str, Any] | None = None
     created_at: datetime
     updated_at: datetime
 

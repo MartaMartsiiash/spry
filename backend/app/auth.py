@@ -152,3 +152,59 @@ async def get_current_user(
 
 
 CurrentUserDep = Annotated[CurrentUser, Depends(get_current_user)]
+
+
+def verify_cognito_token_sync(authorization: str) -> CurrentUser:
+    """Synchronous access-token check for the agenda-parser Lambda (no asyncio).
+
+    Accepts ``Bearer <token>`` or the raw token. Fetches JWKS from Cognito when
+    ``COGNITO_JWKS`` is empty — the parser runs outside the VPC, so that works.
+    """
+    token = authorization.strip()
+    if token.lower().startswith("bearer "):
+        token = token[7:].strip()
+    if not token:
+        raise AuthError("Sign in to continue.")
+
+    if not settings.cognito_user_pool_id or not settings.cognito_client_id:
+        raise AuthNotConfiguredError("Cognito is not configured.")
+
+    verifier = CognitoVerifier(
+        settings.cognito_issuer, settings.cognito_client_id, settings.cognito_jwks
+    )
+    try:
+        header = jwt.get_unverified_header(token)
+    except jwt.PyJWTError as exc:
+        raise AuthError("The token is malformed.") from exc
+
+    if settings.cognito_jwks:
+        document = _parse_jwks(settings.cognito_jwks)
+    else:
+        document = verifier._fetch_jwks()
+    keys = jwt.PyJWKSet.from_dict(document)
+    signing_key = None
+    for key in keys.keys:
+        if key.key_id == header.get("kid"):
+            signing_key = key
+            break
+    if signing_key is None:
+        raise AuthError("The token was signed with an unknown key.")
+
+    try:
+        claims = jwt.decode(
+            token,
+            signing_key,
+            algorithms=["RS256"],
+            issuer=settings.cognito_issuer,
+            options={"require": ["exp", "iat", "iss", "sub", "token_use"]},
+        )
+    except jwt.ExpiredSignatureError as exc:
+        raise AuthError("The token has expired.") from exc
+    except jwt.PyJWTError as exc:
+        raise AuthError("The token is invalid.") from exc
+
+    if claims.get("token_use") != "access":
+        raise AuthError("An access token is required.")
+    if claims.get("client_id") != settings.cognito_client_id:
+        raise AuthError("The access token was issued to another client.")
+    return CurrentUser(sub=claims["sub"], username=claims.get("username"))

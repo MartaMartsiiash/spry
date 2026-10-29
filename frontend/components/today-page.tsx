@@ -1,5 +1,6 @@
 "use client"
 
+import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 
 import { AppHeader } from "@/components/app-header"
@@ -27,6 +28,7 @@ export function TodayPage({ initialDialogOpen = false }: { initialDialogOpen?: b
   const [selected, setSelected] = useState<Meeting>()
   const [editing, setEditing] = useState<Meeting>()
   const { data } = useMeetings()
+  const queryClient = useQueryClient()
 
   const count = data?.items.length ?? 0
   // Details show the freshest copy from the list, e.g. right after an edit.
@@ -82,6 +84,10 @@ export function TodayPage({ initialDialogOpen = false }: { initialDialogOpen?: b
         meeting={current}
         onEdit={onEdit}
         onDelete={onDelete}
+        onMeetingUpdated={(updated) => {
+          setSelected(updated)
+          void queryClient.invalidateQueries({ queryKey: ["meetings"] })
+        }}
       />
       <DeleteMeetingDialog
         open={dialog.kind === "delete"}

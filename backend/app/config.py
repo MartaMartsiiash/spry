@@ -26,13 +26,17 @@ class Settings(BaseSettings):
 
     # Cognito user pool whose access tokens the API accepts. Empty pool id means
     # authentication is not configured, and every meetings request is refused.
-    cognito_region: str = "us-east-1"
+    cognito_region: str = "eu-north-1"
     cognito_user_pool_id: str = ""
     cognito_client_id: str = ""
     # The pool's signing keys (JSON, or that JSON base64-encoded). The Lambda
     # runs in a VPC without internet access, so the deploy passes them in; when
     # empty they are fetched from Cognito on first use.
     cognito_jwks: str = ""
+    # Claude inference-profile id for the agenda parser (Bedrock Converse).
+    # Opus/Haiku 5.5 are listed but not invokable on this Free project; Sonnet 4.6 works.
+    # Override with PARSER_MODEL=... to compare models when access opens.
+    parser_model: str = "eu.anthropic.claude-sonnet-4-6"
 
     @field_validator("app_timezone")
     @classmethod

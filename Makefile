@@ -46,7 +46,11 @@ APP_STACK ?= $(PROJECT_NAME)-backend
 ECR_STACK ?= $(PROJECT_NAME)-ecr
 FRONTEND_STACK ?= $(PROJECT_NAME)-frontend
 REPORTS_STACK ?= $(PROJECT_NAME)-reports
+AI_STACK ?= $(PROJECT_NAME)-ai
 IMAGE_TAG ?= latest
+# Claude model for the agenda parser (override: make parse PARSER_MODEL=...).
+PARSER_MODEL ?= eu.anthropic.claude-sonnet-4-6
+export PARSER_MODEL
 # x86_64 or arm64. arm64 is ~20% cheaper on Lambda and builds natively on
 # Apple Silicon; the image platform is derived from it so the two cannot drift.
 AWS_LAMBDA_ARCH ?= x86_64
@@ -105,9 +109,11 @@ define require-db-password
 endef
 
 .PHONY: help up up-build down down-v logs ps migrate revision seed test lint fmt shell-backend psql \
+        llm-hello parse \
         aws-whoami aws-deploy aws-deploy-auth aws-auth-env aws-ecr aws-push aws-deploy-backend \
         aws-deploy-backend-express aws-deploy-backend-vpc aws-migrate aws-url aws-status aws-logs \
-        aws-frontend-cert aws-deploy-frontend aws-frontend-url aws-deploy-reports report-now report-logs aws-destroy
+        aws-frontend-cert aws-deploy-frontend aws-frontend-url aws-deploy-reports report-now report-logs \
+        aws-deploy-ai aws-ai-url aws-ai-budget ai-logs aws-destroy
 
 help:
 	@grep -hE '^[a-z-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -404,10 +410,14 @@ aws-deploy-frontend: ## Deploy the frontend to S3 + CloudFront, built against th
 		dist=$$($(call stack-output,$(FRONTEND_STACK),DistributionId) | tr -d '[:space:]'); \
 		site=$$($(call stack-output,$(FRONTEND_STACK),SiteUrl) | tr -d '[:space:]'); \
 		site="$${site%/}"; \
+		parser=$$($(call stack-output,$(AI_STACK),ParserUrl) 2>/dev/null | tr -d '[:space:]'); \
+		if [ -z "$$parser" ] || [ "$$parser" = "None" ]; then parser="$(NEXT_PUBLIC_AGENDA_PARSER_URL)"; fi; \
 		echo "Building the static export against $$api (sign-in returns to $$site/auth/callback/)"; \
+		test -n "$$parser" && echo "Agenda parser: $$parser" || echo "Agenda parser URL empty — run make aws-deploy-ai first for Paste an agenda"; \
 		rm -rf frontend/out; \
 		docker build --target export --output type=local,dest=frontend/out \
 			--build-arg NEXT_PUBLIC_API_BASE_URL="$$api" \
+			--build-arg NEXT_PUBLIC_AGENDA_PARSER_URL="$$parser" \
 			--build-arg NEXT_PUBLIC_COGNITO_AUTHORITY="$$(auth_out Issuer)" \
 			--build-arg NEXT_PUBLIC_COGNITO_CLIENT_ID="$$(auth_out UserPoolClientId)" \
 			--build-arg NEXT_PUBLIC_COGNITO_DOMAIN="$$(auth_out HostedDomain)" \
@@ -537,11 +547,86 @@ report-logs: ## Show recent builder and mailer log lines
 	@$(AWS) logs tail /aws/lambda/$(PROJECT_NAME)-report-builder --since 30m --format short
 	@$(AWS) logs tail /aws/lambda/$(PROJECT_NAME)-report-mailer --since 30m --format short
 
+llm-hello: ## Call Claude and Nova (Converse) once from the laptop
+	$(require-aws-credentials)
+	@cd backend && uv run python scripts/llm_hello.py
+
+parse: ## Parse pasted agenda text: make parse TEXT='Пн 10:00, синк…'
+	$(require-aws-credentials)
+	@test -n "$(TEXT)" || { echo "Usage: make parse TEXT='your agenda text'"; exit 1; }
+	@cd backend && TEXT="$(TEXT)" TZ="$(or $(TZ),Europe/Kyiv)" TODAY="$(TODAY)" \
+		PYTHONPATH=. uv run python scripts/parse_agenda_cli.py
+
+aws-deploy-ai: aws-push ## Deploy the agenda-parser Lambda (outside VPC); then $5 budget via CLI
+	$(require-aws-credentials)
+	@pool=$$($(call stack-output,$(AUTH_STACK),UserPoolId) | tr -d '[:space:]'); \
+		client=$$($(call stack-output,$(AUTH_STACK),UserPoolClientId) | tr -d '[:space:]'); \
+		case "$$pool" in ""|None) echo "No user pool — run: make aws-deploy-auth"; exit 1 ;; esac; \
+		image=$$($(AWS) ecr describe-images --repository-name $(PROJECT_NAME)-backend \
+			--image-ids imageTag=$(IMAGE_TAG) \
+			--query 'imageDetails[0].imageDigest' --output text | tr -d '[:space:]'); \
+		registry=$$($(call stack-output,$(ECR_STACK),RepositoryUri) | tr -d '[:space:]'); \
+		cors=$$($(call stack-output,$(FRONTEND_STACK),SiteUrl) 2>/dev/null | tr -d '[:space:]'); \
+		if [ -z "$$cors" ] || [ "$$cors" = "None" ]; then cors="$(or $(AWS_CORS_ORIGINS),http://localhost:3000)"; fi; \
+		$(call clear-failed-create,$(AI_STACK)); \
+		$(call wait-stack-idle,$(AI_STACK)); \
+		echo "Deploying $(AI_STACK) (parser model=$(PARSER_MODEL))"; \
+		$(AWS) cloudformation deploy \
+			--stack-name $(AI_STACK) \
+			--template-file infra/ai.yml \
+			--capabilities CAPABILITY_NAMED_IAM \
+			$(STACK_TAGS) \
+			--parameter-overrides \
+				"ProjectName=$(PROJECT_NAME)" \
+				"ImageUri=$$registry@$$image" \
+				"Architecture=$(AWS_LAMBDA_ARCH)" \
+				"CorsOrigins=$$cors" \
+				"CognitoUserPoolId=$$pool" \
+				"CognitoClientId=$$client" \
+				"ParserModel=$(PARSER_MODEL)"; \
+		$(MAKE) --no-print-directory aws-ai-url; \
+		$(MAKE) --no-print-directory aws-ai-budget
+
+aws-ai-budget: ## Create/update a $5 monthly cost budget email (Budgets is not in CFN here)
+	$(require-aws-credentials)
+	@test -n "$(REPORT_RECIPIENT)" || { \
+		echo "REPORT_RECIPIENT is empty — set it in .env for the budget email"; exit 1; }
+	@tmp=$$(mktemp); \
+		printf '%s\n' \
+			'{"BudgetName":"$(PROJECT_NAME)-ai-monthly","BudgetType":"COST","TimeUnit":"MONTHLY","BudgetLimit":{"Amount":"5","Unit":"USD"}}' > "$$tmp.budget"; \
+		printf '%s\n' \
+			'[{"Notification":{"NotificationType":"ACTUAL","ComparisonOperator":"GREATER_THAN","Threshold":100,"ThresholdType":"PERCENTAGE"},"Subscribers":[{"SubscriptionType":"EMAIL","Address":"$(REPORT_RECIPIENT)"}]}]' > "$$tmp.notify"; \
+		if $(AWS) budgets describe-budget --account-id $$($(AWS) sts get-caller-identity --query Account --output text) \
+			--budget-name "$(PROJECT_NAME)-ai-monthly" >/dev/null 2>&1; then \
+			echo "Budget $(PROJECT_NAME)-ai-monthly already exists"; \
+		else \
+			echo "Creating budget $(PROJECT_NAME)-ai-monthly → $(REPORT_RECIPIENT)"; \
+			$(AWS) budgets create-budget \
+				--account-id $$($(AWS) sts get-caller-identity --query Account --output text) \
+				--budget file://$$tmp.budget \
+				--notifications-with-subscribers file://$$tmp.notify || \
+				echo "WARNING: could not create Budgets alarm (service may be restricted on Free). Create \$5 budget manually in Billing."; \
+		fi; \
+		rm -f "$$tmp.budget" "$$tmp.notify"
+
+aws-ai-url: ## Print the agenda-parser function URL
+	$(require-aws-credentials)
+	@$(call stack-output,$(AI_STACK),ParserUrl)
+
+ai-logs: ## Tail agenda-parser CloudWatch logs
+	$(require-aws-credentials)
+	@$(AWS) logs tail /aws/lambda/$(PROJECT_NAME)-agenda-parser --since 30m --format short
+
 aws-destroy: ## Delete every stack, including the database and its data
 	$(require-aws-credentials)
-	@printf 'Delete %s, %s, %s, %s and %s? The Aurora cluster and all its data, and every user account, go with them (no snapshot). Type yes: ' \
-		"$(REPORTS_STACK)" "$(FRONTEND_STACK)" "$(APP_STACK)" "$(AUTH_STACK)" "$(ECR_STACK)"; \
+	@printf 'Delete %s, %s, %s, %s, %s and %s? The Aurora cluster and all its data, and every user account, go with them (no snapshot). Type yes: ' \
+		"$(AI_STACK)" "$(REPORTS_STACK)" "$(FRONTEND_STACK)" "$(APP_STACK)" "$(AUTH_STACK)" "$(ECR_STACK)"; \
 		read answer; test "$$answer" = "yes" || { echo "Aborted."; exit 1; }
+	@if $(AWS) cloudformation describe-stacks --stack-name $(AI_STACK) >/dev/null 2>&1; then \
+		echo "Deleting $(AI_STACK)"; \
+		$(AWS) cloudformation delete-stack --stack-name $(AI_STACK); \
+		$(AWS) cloudformation wait stack-delete-complete --stack-name $(AI_STACK); \
+	fi
 	@bucket=$$($(call stack-output,$(FRONTEND_STACK),BucketName) 2>/dev/null | tr -d '[:space:]'); \
 		if [ -n "$$bucket" ] && [ "$$bucket" != "None" ]; then \
 			echo "Emptying s3://$$bucket"; \

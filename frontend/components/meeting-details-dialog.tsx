@@ -3,6 +3,7 @@
 import { useRef } from "react"
 import { CalendarDays, Clock, Mail, MapPin, Pencil, Trash2, Users } from "lucide-react"
 
+import { MeetingAgendaPanel } from "@/components/meeting-agenda-panel"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -28,12 +29,14 @@ export function MeetingDetailsDialog({
   onOpenChange,
   onEdit,
   onDelete,
+  onMeetingUpdated,
 }: {
   meeting?: Meeting
   open: boolean
   onOpenChange: (open: boolean) => void
   onEdit: (meeting: Meeting) => void
   onDelete: (meeting: Meeting) => void
+  onMeetingUpdated?: (meeting: Meeting) => void
 }) {
   const editRef = useRef<HTMLButtonElement>(null)
 
@@ -41,7 +44,7 @@ export function MeetingDetailsDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       {meeting ? (
         <DialogContent
-          className="max-h-[90svh] overflow-y-auto sm:max-w-lg"
+          className="max-h-[90svh] overflow-y-auto sm:max-w-2xl"
           // Focus Edit rather than the first button, so Enter never starts a delete.
           onOpenAutoFocus={(event) => {
             event.preventDefault()
@@ -118,6 +121,13 @@ export function MeetingDetailsDialog({
               </ul>
             )}
           </section>
+
+          <Separator />
+
+          <MeetingAgendaPanel
+            meeting={meeting}
+            onSaved={(updated) => onMeetingUpdated?.(updated)}
+          />
 
           <DialogFooter>
             <Button variant="destructive" onClick={() => onDelete(meeting)}>

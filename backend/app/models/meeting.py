@@ -3,6 +3,8 @@
 import uuid
 from datetime import datetime
 
+from typing import Any
+
 from sqlalchemy import (
     CheckConstraint,
     DateTime,
@@ -13,6 +15,7 @@ from sqlalchemy import (
     Text,
     func,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import UUID as PgUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -40,6 +43,10 @@ class Meeting(Base):
     location: Mapped[str | None] = mapped_column(String(200), nullable=True)
     starts_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     ends_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    # Final agenda the user saved after checking (and possibly editing) the suggestion.
+    agenda: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
+    # What the model suggested, plus model id and prompt version — quality signal.
+    ai_suggestion: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
