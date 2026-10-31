@@ -40,7 +40,7 @@ resource "aws_iam_role_policy" "parser_bedrock" {
 resource "aws_cloudwatch_log_group" "parser" {
   name              = "/aws/lambda/${var.project_name}-agenda-parser"
   # Lab 7: small intentional change so HCP can Apply from a VCS push.
-  retention_in_days = 15
+  retention_in_days = 30
 }
 
 resource "aws_lambda_function" "parser" {
