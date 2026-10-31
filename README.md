@@ -30,19 +30,19 @@ The backend applies migrations on start.
 
 Every page except the login page, and every `/api/v1` endpoint, needs a
 signed-in user, and each user sees only their own meetings. Sign-in is an AWS
-Cognito user pool (`infra/auth.yml`): email + password, and Google when it is
+Cognito user pool (`infra/auth.tf`, Terraform / HCP): email + password, and Google when it is
 configured. Even for local development the pool lives in AWS (it is free at
 this scale):
 
 ```bash
-make aws-deploy-auth   # create/update the user pool; allows http://localhost:$FRONTEND_PORT/
+make aws-deploy-auth   # prints Cognito values from Terraform (apply only via HCP)
 make aws-auth-env      # prints COGNITO_* lines: paste them into .env
 docker compose up -d   # restart so the API and the frontend pick them up
 ```
 
 **Google sign-in** (optional): in Google Cloud console create an OAuth client of
 type *Web application*, put its id and secret in `.env` as `GOOGLE_CLIENT_ID` /
-`GOOGLE_CLIENT_SECRET`, run `make aws-deploy-auth`, and add the redirect URI it
+`GOOGLE_CLIENT_SECRET` in the HCP workspace (sensitive), change `infra/auth.tf` / tfvars, merge so HCP applies, and add the redirect URI it
 prints (`https://<prefix>.auth.<region>.amazoncognito.com/oauth2/idpresponse`)
 to the client's *Authorized redirect URIs*. Without it the Google button says
 Google sign-in is not enabled.
@@ -115,14 +115,13 @@ Things that are already taken care of, and why:
 
 ## Deploy to AWS
 
-`infra/` holds four CloudFormation templates: `auth.yml` (Cognito sign-in),
-`ecr.yml` (image registry), `backend.yml` (API and database) and `frontend.yml`
-(site). `make` reads `.env`,
-so the `aws-*` targets pick up the credentials and settings from there; `.env` is
-gitignored, so real keys never reach the repository. The AWS CLI runs in the
-`amazon/aws-cli` container, so nothing has to be installed on the host besides
-Docker (`AWS=aws make aws-deploy` uses a local CLI instead, which is noticeably
-faster).
+`infra/` mixes **Terraform** (`auth.tf`, `reports.tf`, `ai.tf` — Cognito, weekly
+report, agenda parser; state in HCP Terraform workspace `successfulsuccess-dev`)
+with **CloudFormation** for the rest (`ecr.yml`, `backend.yml` / `backend-express.yml`,
+`frontend.yml`). Run `make infra-plan` to preview Terraform changes; **never**
+`terraform apply` from the Makefile — applies happen in HCP after a merge.
+`make` reads `.env` for credentials; `.env` is gitignored. The AWS CLI can run
+in the `amazon/aws-cli` container (`AWS=aws make …` uses a local CLI).
 
 ```
 browser ──https──→ CloudFront (optional custom domain) → private S3 bucket (Next.js static export)

@@ -1,0 +1,21 @@
+Lab 7 Part 2 Step 3c — terraform plan after migration
+Workspace: successfulsuccess-Martsiiash / successfulsuccess-dev
+Working directory: infra
+
+-report-enqueue]
+aws_lambda_function.builder: Refreshing state... [id=successfulsuccess-report-builder]
+aws_lambda_event_source_mapping.builder: Refreshing state... [id=2800ba1c-cfbc-47cc-b528-d7f34c601196]
+aws_lambda_permission.mailer_s3: Refreshing state... [id=AllowS3Mailer]
+aws_lambda_permission.enqueue_s3: Refreshing state... [id=AllowS3Enqueue]
+aws_s3_bucket_notification.reports: Refreshing state... [id=successfulsuccess-reports-378600555796]
+aws_iam_role.builder: Drift detected (update)
+
+No changes. Your infrastructure matches the configuration.
+
+Terraform has compared your real infrastructure against your configuration
+and found no differences, so no changes are needed.
+
+─────────────────────────────────────────────────────────────────────────────
+
+Note: You didn't use the -out option to save this plan, so Terraform can't
+guarantee to take exactly these actions if you run "terraform apply" now.

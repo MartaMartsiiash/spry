@@ -16,3 +16,13 @@ frontend/out/
 .env*.local
 .idea/
 .DS_Store
+
+# terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+crash.log
+infra/generated.tf
+infra/.build/
