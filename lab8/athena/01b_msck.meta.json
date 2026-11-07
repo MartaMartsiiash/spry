@@ -1,0 +1,40 @@
+{
+    "QueryExecution": {
+        "QueryExecutionId": "3f4d48b8-7268-475a-abb6-b0cb3f5cd500",
+        "Query": "MSCK REPAIR TABLE lab8.payment_events",
+        "StatementType": "DDL",
+        "ResultConfiguration": {
+            "OutputLocation": "s3://successfulsuccess-lab8-payments-378600555796/athena-results/3f4d48b8-7268-475a-abb6-b0cb3f5cd500.txt"
+        },
+        "ResultReuseConfiguration": {
+            "ResultReuseByAgeConfiguration": {
+                "Enabled": false
+            }
+        },
+        "QueryExecutionContext": {
+            "Database": "lab8"
+        },
+        "Status": {
+            "State": "SUCCEEDED",
+            "SubmissionDateTime": "2026-11-01T18:06:28.279000+02:00",
+            "CompletionDateTime": "2026-11-01T18:06:30.566000+02:00"
+        },
+        "Statistics": {
+            "EngineExecutionTimeInMillis": 2122,
+            "DataScannedInBytes": 0,
+            "TotalExecutionTimeInMillis": 2287,
+            "QueryQueueTimeInMillis": 113,
+            "ServicePreProcessingTimeInMillis": 39,
+            "ServiceProcessingTimeInMillis": 13,
+            "ResultReuseInformation": {
+                "ReusedPreviousResult": false
+            }
+        },
+        "WorkGroup": "primary",
+        "EngineVersion": {
+            "SelectedEngineVersion": "AUTO",
+            "EffectiveEngineVersion": "Athena engine version 3"
+        },
+        "SubstatementType": "MSCK_REPAIR"
+    }
+}

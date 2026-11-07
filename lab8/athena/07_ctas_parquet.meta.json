@@ -1,0 +1,42 @@
+{
+    "QueryExecution": {
+        "QueryExecutionId": "50691ee1-e3e9-4f20-a8cf-6898422c91bb",
+        "Query": "CREATE TABLE lab8.payments_parquet\nWITH (\n  format = 'PARQUET',\n  parquet_compression = 'SNAPPY',\n  partitioned_by = ARRAY['dt'],\n  external_location = 's3://successfulsuccess-lab8-payments-378600555796/curated/payments/'\n) AS\nSELECT\n  invoiceId,\n  status,\n  failureReason,\n  amount,\n  finalAmount,\n  ccy,\n  reference,\n  createdDate,\n  modifiedDate,\n  receivedAt,\n  merchantId,\n  merchantName,\n  mcc,\n  customerId,\n  paymentMethod,\n  device,\n  dt\nFROM lab8.payments",
+        "StatementType": "DDL",
+        "ResultConfiguration": {
+            "OutputLocation": "s3://successfulsuccess-lab8-payments-378600555796/athena-results/tables/50691ee1-e3e9-4f20-a8cf-6898422c91bb"
+        },
+        "ResultReuseConfiguration": {
+            "ResultReuseByAgeConfiguration": {
+                "Enabled": false
+            }
+        },
+        "QueryExecutionContext": {
+            "Database": "lab8"
+        },
+        "Status": {
+            "State": "SUCCEEDED",
+            "SubmissionDateTime": "2026-11-01T18:07:49.126000+02:00",
+            "CompletionDateTime": "2026-11-01T18:07:56.256000+02:00"
+        },
+        "Statistics": {
+            "EngineExecutionTimeInMillis": 6944,
+            "DataScannedInBytes": 1149712778,
+            "DataManifestLocation": "s3://successfulsuccess-lab8-payments-378600555796/athena-results/tables/50691ee1-e3e9-4f20-a8cf-6898422c91bb-manifest.csv",
+            "TotalExecutionTimeInMillis": 7130,
+            "QueryQueueTimeInMillis": 89,
+            "ServicePreProcessingTimeInMillis": 66,
+            "QueryPlanningTimeInMillis": 431,
+            "ServiceProcessingTimeInMillis": 31,
+            "ResultReuseInformation": {
+                "ReusedPreviousResult": false
+            }
+        },
+        "WorkGroup": "primary",
+        "EngineVersion": {
+            "SelectedEngineVersion": "AUTO",
+            "EffectiveEngineVersion": "Athena engine version 3"
+        },
+        "SubstatementType": "CREATE_TABLE_AS_SELECT"
+    }
+}

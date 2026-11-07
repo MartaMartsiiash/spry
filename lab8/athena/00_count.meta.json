@@ -1,0 +1,41 @@
+{
+    "QueryExecution": {
+        "QueryExecutionId": "bad4118e-8fc8-4496-a776-31b77c8c1979",
+        "Query": "SELECT COUNT(*) AS event_count FROM lab8.payment_events",
+        "StatementType": "DML",
+        "ResultConfiguration": {
+            "OutputLocation": "s3://successfulsuccess-lab8-payments-378600555796/athena-results/bad4118e-8fc8-4496-a776-31b77c8c1979.csv"
+        },
+        "ResultReuseConfiguration": {
+            "ResultReuseByAgeConfiguration": {
+                "Enabled": false
+            }
+        },
+        "QueryExecutionContext": {
+            "Database": "lab8"
+        },
+        "Status": {
+            "State": "SUCCEEDED",
+            "SubmissionDateTime": "2026-11-01T18:06:32.543000+02:00",
+            "CompletionDateTime": "2026-11-01T18:06:33.820000+02:00"
+        },
+        "Statistics": {
+            "EngineExecutionTimeInMillis": 1062,
+            "DataScannedInBytes": 1149712778,
+            "TotalExecutionTimeInMillis": 1277,
+            "QueryQueueTimeInMillis": 103,
+            "ServicePreProcessingTimeInMillis": 44,
+            "QueryPlanningTimeInMillis": 372,
+            "ServiceProcessingTimeInMillis": 68,
+            "ResultReuseInformation": {
+                "ReusedPreviousResult": false
+            }
+        },
+        "WorkGroup": "primary",
+        "EngineVersion": {
+            "SelectedEngineVersion": "AUTO",
+            "EffectiveEngineVersion": "Athena engine version 3"
+        },
+        "SubstatementType": "SELECT"
+    }
+}

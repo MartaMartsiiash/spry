@@ -1,0 +1,41 @@
+{
+    "QueryExecution": {
+        "QueryExecutionId": "d5826d1f-b3cc-48a7-ad89-2369625d7c23",
+        "Query": "SELECT\n  COUNT(*) AS events,\n  COUNT(DISTINCT invoiceId) AS unique_invoices,\n  COUNT(*) - COUNT(DISTINCT invoiceId || '|' || status || '|' || modifiedDate || '|' || coalesce(failureReason,'')) AS approx_exact_dup_rows_removed_if_distinct_star\nFROM lab8.payment_events",
+        "StatementType": "DML",
+        "ResultConfiguration": {
+            "OutputLocation": "s3://successfulsuccess-lab8-payments-378600555796/athena-results/d5826d1f-b3cc-48a7-ad89-2369625d7c23.csv"
+        },
+        "ResultReuseConfiguration": {
+            "ResultReuseByAgeConfiguration": {
+                "Enabled": false
+            }
+        },
+        "QueryExecutionContext": {
+            "Database": "lab8"
+        },
+        "Status": {
+            "State": "SUCCEEDED",
+            "SubmissionDateTime": "2026-11-01T18:06:51.004000+02:00",
+            "CompletionDateTime": "2026-11-01T18:06:53.040000+02:00"
+        },
+        "Statistics": {
+            "EngineExecutionTimeInMillis": 1881,
+            "DataScannedInBytes": 1149712778,
+            "TotalExecutionTimeInMillis": 2036,
+            "QueryQueueTimeInMillis": 100,
+            "ServicePreProcessingTimeInMillis": 37,
+            "QueryPlanningTimeInMillis": 352,
+            "ServiceProcessingTimeInMillis": 18,
+            "ResultReuseInformation": {
+                "ReusedPreviousResult": false
+            }
+        },
+        "WorkGroup": "primary",
+        "EngineVersion": {
+            "SelectedEngineVersion": "AUTO",
+            "EffectiveEngineVersion": "Athena engine version 3"
+        },
+        "SubstatementType": "SELECT"
+    }
+}

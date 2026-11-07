@@ -1,0 +1,7 @@
+sent=1000
+sent=2000
+sent=3000
+sent=4000
+sent=5000
+sent=6000
+DONE sent=6000 late_injected=0 seconds=10.4 rate_events_per_s=579.6

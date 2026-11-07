@@ -1,0 +1,8 @@
+{
+  "file": "07_ctas_parquet.sql",
+  "qid": "50691ee1-e3e9-4f20-a8cf-6898422c91bb",
+  "state": "SUCCEEDED",
+  "data_scanned_bytes": 1149712778,
+  "engine_ms": 6944,
+  "total_ms": 7130
+}

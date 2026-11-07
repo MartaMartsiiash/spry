@@ -1,0 +1,8 @@
+{
+  "file": "03_turnover_parquet.sql",
+  "qid": "e397177c-e848-4e97-b153-0e426f3bc328",
+  "state": "SUCCEEDED",
+  "data_scanned_bytes": 1474041,
+  "engine_ms": 873,
+  "total_ms": 1021
+}

@@ -1,0 +1,9 @@
+merchantId | merchantName | ccy | success_payments | turnover
+m_004 | Nova Poshta | 980 | 114414 | 8.160079E7
+m_001 | Rozetka | 980 | 114535 | 8.1454125E7
+m_002 | Silpo | 980 | 114274 | 8.1300164E7
+m_006 | Starbucks UA | 980 | 114048 | 8.1220896E7
+m_007 | Olx Services | 980 | 113782 | 8.1116434E7
+m_005 | Foxtrot | 980 | 114157 | 8.1096425E7
+m_008 | Kyivstar | 980 | 113784 | 8.0988386E7
+m_003 | Uklon Ride | 980 | 113912 | 8.0544035E7

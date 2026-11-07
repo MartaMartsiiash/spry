@@ -1,0 +1,40 @@
+{
+    "QueryExecution": {
+        "QueryExecutionId": "e56937dd-e7e7-4023-9ed9-7447d87c860f",
+        "Query": "CREATE OR REPLACE VIEW lab8.payments AS\nWITH dedup_exact AS (\n  SELECT DISTINCT *\n  FROM lab8.payment_events\n),\nranked AS (\n  SELECT\n    *,\n    row_number() OVER (\n      PARTITION BY invoiceId\n      ORDER BY from_iso8601_timestamp(modifiedDate) DESC\n    ) AS rn\n  FROM dedup_exact\n)\nSELECT\n  invoiceId,\n  status,\n  failureReason,\n  amount,\n  finalAmount,\n  ccy,\n  reference,\n  createdDate,\n  modifiedDate,\n  receivedAt,\n  merchantId,\n  merchantName,\n  mcc,\n  customerId,\n  paymentMethod,\n  device,\n  dt\nFROM ranked\nWHERE rn = 1",
+        "StatementType": "DDL",
+        "ResultConfiguration": {
+            "OutputLocation": "s3://successfulsuccess-lab8-payments-378600555796/athena-results/e56937dd-e7e7-4023-9ed9-7447d87c860f.txt"
+        },
+        "ResultReuseConfiguration": {
+            "ResultReuseByAgeConfiguration": {
+                "Enabled": false
+            }
+        },
+        "QueryExecutionContext": {
+            "Database": "lab8"
+        },
+        "Status": {
+            "State": "SUCCEEDED",
+            "SubmissionDateTime": "2026-11-01T18:07:04.100000+02:00",
+            "CompletionDateTime": "2026-11-01T18:07:04.543000+02:00"
+        },
+        "Statistics": {
+            "EngineExecutionTimeInMillis": 321,
+            "DataScannedInBytes": 0,
+            "TotalExecutionTimeInMillis": 443,
+            "QueryQueueTimeInMillis": 85,
+            "ServicePreProcessingTimeInMillis": 14,
+            "ServiceProcessingTimeInMillis": 23,
+            "ResultReuseInformation": {
+                "ReusedPreviousResult": false
+            }
+        },
+        "WorkGroup": "primary",
+        "EngineVersion": {
+            "SelectedEngineVersion": "AUTO",
+            "EffectiveEngineVersion": "Athena engine version 3"
+        },
+        "SubstatementType": "CREATE_VIEW"
+    }
+}

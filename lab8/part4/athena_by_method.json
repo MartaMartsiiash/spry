@@ -1,0 +1,139 @@
+{
+    "ResultSet": {
+        "Rows": [
+            {
+                "Data": [
+                    {
+                        "VarCharValue": "paymentMethod"
+                    },
+                    {
+                        "VarCharValue": "n"
+                    },
+                    {
+                        "VarCharValue": "failures"
+                    },
+                    {
+                        "VarCharValue": "failure_rate"
+                    }
+                ]
+            },
+            {
+                "Data": [
+                    {
+                        "VarCharValue": "monobank"
+                    },
+                    {
+                        "VarCharValue": "598"
+                    },
+                    {
+                        "VarCharValue": "80"
+                    },
+                    {
+                        "VarCharValue": "0.1338"
+                    }
+                ]
+            },
+            {
+                "Data": [
+                    {
+                        "VarCharValue": "google_pay"
+                    },
+                    {
+                        "VarCharValue": "621"
+                    },
+                    {
+                        "VarCharValue": "74"
+                    },
+                    {
+                        "VarCharValue": "0.1192"
+                    }
+                ]
+            },
+            {
+                "Data": [
+                    {
+                        "VarCharValue": "card"
+                    },
+                    {
+                        "VarCharValue": "632"
+                    },
+                    {
+                        "VarCharValue": "72"
+                    },
+                    {
+                        "VarCharValue": "0.1139"
+                    }
+                ]
+            },
+            {
+                "Data": [
+                    {
+                        "VarCharValue": "apple_pay"
+                    },
+                    {
+                        "VarCharValue": "659"
+                    },
+                    {
+                        "VarCharValue": "74"
+                    },
+                    {
+                        "VarCharValue": "0.1123"
+                    }
+                ]
+            }
+        ],
+        "ResultSetMetadata": {
+            "ColumnInfo": [
+                {
+                    "CatalogName": "hive",
+                    "SchemaName": "",
+                    "TableName": "",
+                    "Name": "paymentMethod",
+                    "Label": "paymentMethod",
+                    "Type": "varchar",
+                    "Precision": 2147483647,
+                    "Scale": 0,
+                    "Nullable": "UNKNOWN",
+                    "CaseSensitive": true
+                },
+                {
+                    "CatalogName": "hive",
+                    "SchemaName": "",
+                    "TableName": "",
+                    "Name": "n",
+                    "Label": "n",
+                    "Type": "bigint",
+                    "Precision": 19,
+                    "Scale": 0,
+                    "Nullable": "UNKNOWN",
+                    "CaseSensitive": false
+                },
+                {
+                    "CatalogName": "hive",
+                    "SchemaName": "",
+                    "TableName": "",
+                    "Name": "failures",
+                    "Label": "failures",
+                    "Type": "bigint",
+                    "Precision": 19,
+                    "Scale": 0,
+                    "Nullable": "UNKNOWN",
+                    "CaseSensitive": false
+                },
+                {
+                    "CatalogName": "hive",
+                    "SchemaName": "",
+                    "TableName": "",
+                    "Name": "failure_rate",
+                    "Label": "failure_rate",
+                    "Type": "double",
+                    "Precision": 17,
+                    "Scale": 0,
+                    "Nullable": "UNKNOWN",
+                    "CaseSensitive": false
+                }
+            ]
+        }
+    },
+    "UpdateCount": 0
+}

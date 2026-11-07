@@ -1,0 +1,8 @@
+{
+  "file": "01_create_table.sql",
+  "qid": "d3c495b1-54fc-49f3-86ed-990dff2284e1",
+  "state": "SUCCEEDED",
+  "data_scanned_bytes": 0,
+  "engine_ms": 377,
+  "total_ms": 466
+}

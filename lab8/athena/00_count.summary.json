@@ -1,0 +1,8 @@
+{
+  "file": "00_count.sql",
+  "qid": "bad4118e-8fc8-4496-a776-31b77c8c1979",
+  "state": "SUCCEEDED",
+  "data_scanned_bytes": 1149712778,
+  "engine_ms": 1062,
+  "total_ms": 1277
+}

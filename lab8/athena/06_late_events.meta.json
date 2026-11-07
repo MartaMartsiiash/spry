@@ -1,0 +1,41 @@
+{
+    "QueryExecution": {
+        "QueryExecutionId": "e015cff3-789c-4e9b-9925-917c33c6dc3e",
+        "Query": "-- Events that arrived more than 60 seconds after they happened\nSELECT COUNT(*) AS late_over_60s\nFROM lab8.payment_events\nWHERE date_diff(\n  'second',\n  from_iso8601_timestamp(modifiedDate),\n  from_iso8601_timestamp(receivedAt)\n) > 60",
+        "StatementType": "DML",
+        "ResultConfiguration": {
+            "OutputLocation": "s3://successfulsuccess-lab8-payments-378600555796/athena-results/e015cff3-789c-4e9b-9925-917c33c6dc3e.csv"
+        },
+        "ResultReuseConfiguration": {
+            "ResultReuseByAgeConfiguration": {
+                "Enabled": false
+            }
+        },
+        "QueryExecutionContext": {
+            "Database": "lab8"
+        },
+        "Status": {
+            "State": "SUCCEEDED",
+            "SubmissionDateTime": "2026-11-01T18:07:26.309000+02:00",
+            "CompletionDateTime": "2026-11-01T18:07:27.849000+02:00"
+        },
+        "Statistics": {
+            "EngineExecutionTimeInMillis": 1395,
+            "DataScannedInBytes": 1149712778,
+            "TotalExecutionTimeInMillis": 1540,
+            "QueryQueueTimeInMillis": 93,
+            "ServicePreProcessingTimeInMillis": 31,
+            "QueryPlanningTimeInMillis": 268,
+            "ServiceProcessingTimeInMillis": 21,
+            "ResultReuseInformation": {
+                "ReusedPreviousResult": false
+            }
+        },
+        "WorkGroup": "primary",
+        "EngineVersion": {
+            "SelectedEngineVersion": "AUTO",
+            "EffectiveEngineVersion": "Athena engine version 3"
+        },
+        "SubstatementType": "SELECT"
+    }
+}

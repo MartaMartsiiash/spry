@@ -1,0 +1,41 @@
+{
+    "QueryExecution": {
+        "QueryExecutionId": "40e9db9b-b072-4356-beee-31371b89c32e",
+        "Query": "SELECT\n  hour(from_iso8601_timestamp(createdDate)) AS hour_of_day,\n  COUNT(*) AS payments\nFROM lab8.payments\nGROUP BY 1\nORDER BY 1",
+        "StatementType": "DML",
+        "ResultConfiguration": {
+            "OutputLocation": "s3://successfulsuccess-lab8-payments-378600555796/athena-results/40e9db9b-b072-4356-beee-31371b89c32e.csv"
+        },
+        "ResultReuseConfiguration": {
+            "ResultReuseByAgeConfiguration": {
+                "Enabled": false
+            }
+        },
+        "QueryExecutionContext": {
+            "Database": "lab8"
+        },
+        "Status": {
+            "State": "SUCCEEDED",
+            "SubmissionDateTime": "2026-11-01T18:07:19.488000+02:00",
+            "CompletionDateTime": "2026-11-01T18:07:23.318000+02:00"
+        },
+        "Statistics": {
+            "EngineExecutionTimeInMillis": 3687,
+            "DataScannedInBytes": 1149712778,
+            "TotalExecutionTimeInMillis": 3830,
+            "QueryQueueTimeInMillis": 69,
+            "ServicePreProcessingTimeInMillis": 40,
+            "QueryPlanningTimeInMillis": 381,
+            "ServiceProcessingTimeInMillis": 34,
+            "ResultReuseInformation": {
+                "ReusedPreviousResult": false
+            }
+        },
+        "WorkGroup": "primary",
+        "EngineVersion": {
+            "SelectedEngineVersion": "AUTO",
+            "EffectiveEngineVersion": "Athena engine version 3"
+        },
+        "SubstatementType": "SELECT"
+    }
+}

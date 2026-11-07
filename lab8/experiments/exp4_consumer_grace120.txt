@@ -1,0 +1,550 @@
+consuming topic=payments group=lab8-exp4-g120d late_grace_sec=120
+
+=== WINDOW 2026-10-01T00:00:00+00:00 → 2026-10-01T00:01:00+00:00 ===
+invoices=17 unique_lines=33 rejected_late=0
+  apple_pay: n=5 failures=0 rate=0.0%
+  card: n=4 failures=0 rate=0.0%
+  google_pay: n=5 failures=0 rate=0.0%
+  monobank: n=3 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:01:00+00:00 → 2026-10-01T00:02:00+00:00 ===
+invoices=35 unique_lines=59 rejected_late=0
+  apple_pay: n=7 failures=0 rate=0.0%
+  card: n=12 failures=0 rate=0.0%
+  google_pay: n=7 failures=2 rate=28.6%  *** ALERT: failures > 10% ***
+  monobank: n=9 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:02:00+00:00 → 2026-10-01T00:03:00+00:00 ===
+invoices=41 unique_lines=69 rejected_late=0
+  apple_pay: n=8 failures=0 rate=0.0%
+  card: n=11 failures=1 rate=9.1%
+  google_pay: n=8 failures=2 rate=25.0%  *** ALERT: failures > 10% ***
+  monobank: n=14 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:03:00+00:00 → 2026-10-01T00:04:00+00:00 ===
+invoices=46 unique_lines=63 rejected_late=0
+  apple_pay: n=10 failures=1 rate=10.0%
+  card: n=13 failures=0 rate=0.0%
+  google_pay: n=11 failures=0 rate=0.0%
+  monobank: n=12 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:04:00+00:00 → 2026-10-01T00:05:00+00:00 ===
+invoices=40 unique_lines=58 rejected_late=0
+  apple_pay: n=10 failures=0 rate=0.0%
+  card: n=9 failures=0 rate=0.0%
+  google_pay: n=10 failures=1 rate=10.0%
+  monobank: n=11 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:05:00+00:00 → 2026-10-01T00:06:00+00:00 ===
+invoices=50 unique_lines=76 rejected_late=0
+  apple_pay: n=11 failures=0 rate=0.0%
+  card: n=12 failures=0 rate=0.0%
+  google_pay: n=13 failures=0 rate=0.0%
+  monobank: n=14 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:06:00+00:00 → 2026-10-01T00:07:00+00:00 ===
+invoices=27 unique_lines=43 rejected_late=0
+  apple_pay: n=1 failures=0 rate=0.0%
+  card: n=7 failures=0 rate=0.0%
+  google_pay: n=6 failures=1 rate=16.7%  *** ALERT: failures > 10% ***
+  monobank: n=13 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:07:00+00:00 → 2026-10-01T00:08:00+00:00 ===
+invoices=45 unique_lines=69 rejected_late=0
+  apple_pay: n=9 failures=0 rate=0.0%
+  card: n=10 failures=0 rate=0.0%
+  google_pay: n=15 failures=0 rate=0.0%
+  monobank: n=11 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:08:00+00:00 → 2026-10-01T00:09:00+00:00 ===
+invoices=37 unique_lines=63 rejected_late=0
+  apple_pay: n=9 failures=0 rate=0.0%
+  card: n=9 failures=0 rate=0.0%
+  google_pay: n=12 failures=3 rate=25.0%  *** ALERT: failures > 10% ***
+  monobank: n=7 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:09:00+00:00 → 2026-10-01T00:10:00+00:00 ===
+invoices=46 unique_lines=76 rejected_late=0
+  apple_pay: n=11 failures=0 rate=0.0%
+  card: n=9 failures=0 rate=0.0%
+  google_pay: n=17 failures=1 rate=5.9%
+  monobank: n=9 failures=1 rate=11.1%  *** ALERT: failures > 10% ***
+
+=== WINDOW 2026-10-01T00:10:00+00:00 → 2026-10-01T00:11:00+00:00 ===
+invoices=49 unique_lines=74 rejected_late=0
+  apple_pay: n=14 failures=0 rate=0.0%
+  card: n=10 failures=0 rate=0.0%
+  google_pay: n=17 failures=0 rate=0.0%
+  monobank: n=8 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:11:00+00:00 → 2026-10-01T00:12:00+00:00 ===
+invoices=61 unique_lines=89 rejected_late=0
+  apple_pay: n=12 failures=1 rate=8.3%
+  card: n=13 failures=0 rate=0.0%
+  google_pay: n=18 failures=2 rate=11.1%  *** ALERT: failures > 10% ***
+  monobank: n=18 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:12:00+00:00 → 2026-10-01T00:13:00+00:00 ===
+invoices=43 unique_lines=62 rejected_late=0
+  apple_pay: n=10 failures=0 rate=0.0%
+  card: n=8 failures=1 rate=12.5%  *** ALERT: failures > 10% ***
+  google_pay: n=15 failures=1 rate=6.7%
+  monobank: n=10 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:13:00+00:00 → 2026-10-01T00:14:00+00:00 ===
+invoices=42 unique_lines=59 rejected_late=0
+  apple_pay: n=6 failures=0 rate=0.0%
+  card: n=7 failures=0 rate=0.0%
+  google_pay: n=14 failures=0 rate=0.0%
+  monobank: n=15 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:14:00+00:00 → 2026-10-01T00:15:00+00:00 ===
+invoices=45 unique_lines=63 rejected_late=0
+  apple_pay: n=9 failures=0 rate=0.0%
+  card: n=9 failures=0 rate=0.0%
+  google_pay: n=12 failures=1 rate=8.3%
+  monobank: n=15 failures=2 rate=13.3%  *** ALERT: failures > 10% ***
+
+=== WINDOW 2026-10-01T00:15:00+00:00 → 2026-10-01T00:16:00+00:00 ===
+invoices=48 unique_lines=79 rejected_late=0
+  apple_pay: n=15 failures=0 rate=0.0%
+  card: n=11 failures=1 rate=9.1%
+  google_pay: n=10 failures=0 rate=0.0%
+  monobank: n=12 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:16:00+00:00 → 2026-10-01T00:17:00+00:00 ===
+invoices=42 unique_lines=61 rejected_late=0
+  apple_pay: n=7 failures=1 rate=14.3%  *** ALERT: failures > 10% ***
+  card: n=12 failures=1 rate=8.3%
+  google_pay: n=9 failures=0 rate=0.0%
+  monobank: n=14 failures=1 rate=7.1%
+
+=== WINDOW 2026-10-01T00:17:00+00:00 → 2026-10-01T00:18:00+00:00 ===
+invoices=46 unique_lines=62 rejected_late=0
+  apple_pay: n=13 failures=2 rate=15.4%  *** ALERT: failures > 10% ***
+  card: n=7 failures=0 rate=0.0%
+  google_pay: n=15 failures=2 rate=13.3%  *** ALERT: failures > 10% ***
+  monobank: n=11 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:18:00+00:00 → 2026-10-01T00:19:00+00:00 ===
+invoices=58 unique_lines=74 rejected_late=0
+  apple_pay: n=13 failures=0 rate=0.0%
+  card: n=13 failures=1 rate=7.7%
+  google_pay: n=20 failures=0 rate=0.0%
+  monobank: n=12 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:19:00+00:00 → 2026-10-01T00:20:00+00:00 ===
+invoices=49 unique_lines=66 rejected_late=0
+  apple_pay: n=15 failures=1 rate=6.7%
+  card: n=13 failures=1 rate=7.7%
+  google_pay: n=10 failures=3 rate=30.0%  *** ALERT: failures > 10% ***
+  monobank: n=11 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:20:00+00:00 → 2026-10-01T00:21:00+00:00 ===
+invoices=43 unique_lines=61 rejected_late=0
+  apple_pay: n=15 failures=0 rate=0.0%
+  card: n=10 failures=1 rate=10.0%
+  google_pay: n=9 failures=1 rate=11.1%  *** ALERT: failures > 10% ***
+  monobank: n=9 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:21:00+00:00 → 2026-10-01T00:22:00+00:00 ===
+invoices=46 unique_lines=64 rejected_late=0
+  apple_pay: n=14 failures=1 rate=7.1%
+  card: n=10 failures=0 rate=0.0%
+  google_pay: n=11 failures=0 rate=0.0%
+  monobank: n=11 failures=1 rate=9.1%
+
+=== WINDOW 2026-10-01T00:22:00+00:00 → 2026-10-01T00:23:00+00:00 ===
+invoices=37 unique_lines=59 rejected_late=0
+  apple_pay: n=9 failures=0 rate=0.0%
+  card: n=8 failures=0 rate=0.0%
+  google_pay: n=11 failures=0 rate=0.0%
+  monobank: n=9 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:23:00+00:00 → 2026-10-01T00:24:00+00:00 ===
+invoices=48 unique_lines=68 rejected_late=0
+  apple_pay: n=10 failures=0 rate=0.0%
+  card: n=13 failures=1 rate=7.7%
+  google_pay: n=13 failures=0 rate=0.0%
+  monobank: n=12 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:24:00+00:00 → 2026-10-01T00:25:00+00:00 ===
+invoices=49 unique_lines=68 rejected_late=0
+  apple_pay: n=18 failures=1 rate=5.6%
+  card: n=16 failures=0 rate=0.0%
+  google_pay: n=7 failures=0 rate=0.0%
+  monobank: n=8 failures=1 rate=12.5%  *** ALERT: failures > 10% ***
+
+=== WINDOW 2026-10-01T00:25:00+00:00 → 2026-10-01T00:26:00+00:00 ===
+invoices=55 unique_lines=84 rejected_late=0
+  apple_pay: n=17 failures=1 rate=5.9%
+  card: n=18 failures=1 rate=5.6%
+  google_pay: n=10 failures=0 rate=0.0%
+  monobank: n=10 failures=2 rate=20.0%  *** ALERT: failures > 10% ***
+
+=== WINDOW 2026-10-01T00:26:00+00:00 → 2026-10-01T00:27:00+00:00 ===
+invoices=43 unique_lines=63 rejected_late=0
+  apple_pay: n=15 failures=1 rate=6.7%
+  card: n=11 failures=0 rate=0.0%
+  google_pay: n=10 failures=0 rate=0.0%
+  monobank: n=7 failures=1 rate=14.3%  *** ALERT: failures > 10% ***
+
+=== WINDOW 2026-10-01T00:27:00+00:00 → 2026-10-01T00:28:00+00:00 ===
+invoices=31 unique_lines=40 rejected_late=0
+  apple_pay: n=10 failures=1 rate=10.0%
+  card: n=6 failures=0 rate=0.0%
+  google_pay: n=7 failures=0 rate=0.0%
+  monobank: n=8 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:28:00+00:00 → 2026-10-01T00:29:00+00:00 ===
+invoices=34 unique_lines=54 rejected_late=0
+  apple_pay: n=8 failures=2 rate=25.0%  *** ALERT: failures > 10% ***
+  card: n=11 failures=0 rate=0.0%
+  google_pay: n=11 failures=0 rate=0.0%
+  monobank: n=4 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:29:00+00:00 → 2026-10-01T00:30:00+00:00 ===
+invoices=36 unique_lines=54 rejected_late=0
+  apple_pay: n=6 failures=0 rate=0.0%
+  card: n=9 failures=0 rate=0.0%
+  google_pay: n=10 failures=1 rate=10.0%
+  monobank: n=11 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:30:00+00:00 → 2026-10-01T00:31:00+00:00 ===
+invoices=36 unique_lines=57 rejected_late=0
+  apple_pay: n=7 failures=0 rate=0.0%
+  card: n=7 failures=1 rate=14.3%  *** ALERT: failures > 10% ***
+  google_pay: n=12 failures=0 rate=0.0%
+  monobank: n=10 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:31:00+00:00 → 2026-10-01T00:32:00+00:00 ===
+invoices=37 unique_lines=54 rejected_late=0
+  apple_pay: n=9 failures=0 rate=0.0%
+  card: n=4 failures=0 rate=0.0%
+  google_pay: n=13 failures=0 rate=0.0%
+  monobank: n=11 failures=2 rate=18.2%  *** ALERT: failures > 10% ***
+
+=== WINDOW 2026-10-01T00:32:00+00:00 → 2026-10-01T00:33:00+00:00 ===
+invoices=47 unique_lines=77 rejected_late=0
+  apple_pay: n=10 failures=0 rate=0.0%
+  card: n=13 failures=0 rate=0.0%
+  google_pay: n=15 failures=1 rate=6.7%
+  monobank: n=9 failures=1 rate=11.1%  *** ALERT: failures > 10% ***
+
+=== WINDOW 2026-10-01T00:33:00+00:00 → 2026-10-01T00:34:00+00:00 ===
+invoices=45 unique_lines=58 rejected_late=0
+  apple_pay: n=6 failures=1 rate=16.7%  *** ALERT: failures > 10% ***
+  card: n=16 failures=2 rate=12.5%  *** ALERT: failures > 10% ***
+  google_pay: n=12 failures=0 rate=0.0%
+  monobank: n=11 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:34:00+00:00 → 2026-10-01T00:35:00+00:00 ===
+invoices=54 unique_lines=80 rejected_late=0
+  apple_pay: n=12 failures=0 rate=0.0%
+  card: n=17 failures=0 rate=0.0%
+  google_pay: n=11 failures=0 rate=0.0%
+  monobank: n=14 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:35:00+00:00 → 2026-10-01T00:36:00+00:00 ===
+invoices=51 unique_lines=75 rejected_late=0
+  apple_pay: n=9 failures=0 rate=0.0%
+  card: n=13 failures=1 rate=7.7%
+  google_pay: n=15 failures=0 rate=0.0%
+  monobank: n=14 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:36:00+00:00 → 2026-10-01T00:37:00+00:00 ===
+invoices=51 unique_lines=71 rejected_late=0
+  apple_pay: n=11 failures=0 rate=0.0%
+  card: n=13 failures=0 rate=0.0%
+  google_pay: n=11 failures=1 rate=9.1%
+  monobank: n=16 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:37:00+00:00 → 2026-10-01T00:38:00+00:00 ===
+invoices=38 unique_lines=57 rejected_late=0
+  apple_pay: n=10 failures=1 rate=10.0%
+  card: n=13 failures=0 rate=0.0%
+  google_pay: n=6 failures=0 rate=0.0%
+  monobank: n=9 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:38:00+00:00 → 2026-10-01T00:39:00+00:00 ===
+invoices=38 unique_lines=55 rejected_late=0
+  apple_pay: n=9 failures=0 rate=0.0%
+  card: n=15 failures=0 rate=0.0%
+  google_pay: n=7 failures=1 rate=14.3%  *** ALERT: failures > 10% ***
+  monobank: n=7 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:39:00+00:00 → 2026-10-01T00:40:00+00:00 ===
+invoices=35 unique_lines=47 rejected_late=0
+  apple_pay: n=6 failures=0 rate=0.0%
+  card: n=12 failures=0 rate=0.0%
+  google_pay: n=9 failures=1 rate=11.1%  *** ALERT: failures > 10% ***
+  monobank: n=8 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:40:00+00:00 → 2026-10-01T00:41:00+00:00 ===
+invoices=44 unique_lines=67 rejected_late=0
+  apple_pay: n=10 failures=0 rate=0.0%
+  card: n=8 failures=0 rate=0.0%
+  google_pay: n=12 failures=0 rate=0.0%
+  monobank: n=14 failures=1 rate=7.1%
+
+=== WINDOW 2026-10-01T00:41:00+00:00 → 2026-10-01T00:42:00+00:00 ===
+invoices=51 unique_lines=72 rejected_late=0
+  apple_pay: n=9 failures=0 rate=0.0%
+  card: n=16 failures=0 rate=0.0%
+  google_pay: n=15 failures=0 rate=0.0%
+  monobank: n=11 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:42:00+00:00 → 2026-10-01T00:43:00+00:00 ===
+invoices=51 unique_lines=70 rejected_late=0
+  apple_pay: n=14 failures=0 rate=0.0%
+  card: n=14 failures=3 rate=21.4%  *** ALERT: failures > 10% ***
+  google_pay: n=13 failures=1 rate=7.7%
+  monobank: n=10 failures=2 rate=20.0%  *** ALERT: failures > 10% ***
+
+=== WINDOW 2026-10-01T00:43:00+00:00 → 2026-10-01T00:44:00+00:00 ===
+invoices=48 unique_lines=75 rejected_late=0
+  apple_pay: n=12 failures=1 rate=8.3%
+  card: n=15 failures=1 rate=6.7%
+  google_pay: n=11 failures=1 rate=9.1%
+  monobank: n=10 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:44:00+00:00 → 2026-10-01T00:45:00+00:00 ===
+invoices=42 unique_lines=62 rejected_late=0
+  apple_pay: n=12 failures=0 rate=0.0%
+  card: n=9 failures=0 rate=0.0%
+  google_pay: n=12 failures=1 rate=8.3%
+  monobank: n=9 failures=1 rate=11.1%  *** ALERT: failures > 10% ***
+
+=== WINDOW 2026-10-01T00:45:00+00:00 → 2026-10-01T00:46:00+00:00 ===
+invoices=44 unique_lines=66 rejected_late=0
+  apple_pay: n=12 failures=0 rate=0.0%
+  card: n=16 failures=0 rate=0.0%
+  google_pay: n=13 failures=0 rate=0.0%
+  monobank: n=3 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:46:00+00:00 → 2026-10-01T00:47:00+00:00 ===
+invoices=45 unique_lines=67 rejected_late=0
+  apple_pay: n=9 failures=1 rate=11.1%  *** ALERT: failures > 10% ***
+  card: n=9 failures=0 rate=0.0%
+  google_pay: n=18 failures=1 rate=5.6%
+  monobank: n=9 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:47:00+00:00 → 2026-10-01T00:48:00+00:00 ===
+invoices=37 unique_lines=57 rejected_late=0
+  apple_pay: n=6 failures=1 rate=16.7%  *** ALERT: failures > 10% ***
+  card: n=12 failures=1 rate=8.3%
+  google_pay: n=12 failures=1 rate=8.3%
+  monobank: n=7 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:48:00+00:00 → 2026-10-01T00:49:00+00:00 ===
+invoices=41 unique_lines=61 rejected_late=0
+  apple_pay: n=7 failures=0 rate=0.0%
+  card: n=11 failures=0 rate=0.0%
+  google_pay: n=15 failures=2 rate=13.3%  *** ALERT: failures > 10% ***
+  monobank: n=8 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:49:00+00:00 → 2026-10-01T00:50:00+00:00 ===
+invoices=43 unique_lines=70 rejected_late=0
+  apple_pay: n=10 failures=0 rate=0.0%
+  card: n=13 failures=1 rate=7.7%
+  google_pay: n=9 failures=0 rate=0.0%
+  monobank: n=11 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:50:00+00:00 → 2026-10-01T00:51:00+00:00 ===
+invoices=37 unique_lines=54 rejected_late=0
+  apple_pay: n=11 failures=0 rate=0.0%
+  card: n=6 failures=0 rate=0.0%
+  google_pay: n=10 failures=1 rate=10.0%
+  monobank: n=10 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:51:00+00:00 → 2026-10-01T00:52:00+00:00 ===
+invoices=39 unique_lines=54 rejected_late=0
+  apple_pay: n=14 failures=0 rate=0.0%
+  card: n=5 failures=0 rate=0.0%
+  google_pay: n=6 failures=0 rate=0.0%
+  monobank: n=14 failures=1 rate=7.1%
+
+=== WINDOW 2026-10-01T00:52:00+00:00 → 2026-10-01T00:53:00+00:00 ===
+invoices=40 unique_lines=67 rejected_late=0
+  apple_pay: n=9 failures=0 rate=0.0%
+  card: n=6 failures=1 rate=16.7%  *** ALERT: failures > 10% ***
+  google_pay: n=8 failures=1 rate=12.5%  *** ALERT: failures > 10% ***
+  monobank: n=17 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:53:00+00:00 → 2026-10-01T00:54:00+00:00 ===
+invoices=34 unique_lines=50 rejected_late=0
+  apple_pay: n=13 failures=2 rate=15.4%  *** ALERT: failures > 10% ***
+  card: n=3 failures=0 rate=0.0%
+  google_pay: n=11 failures=2 rate=18.2%  *** ALERT: failures > 10% ***
+  monobank: n=7 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:54:00+00:00 → 2026-10-01T00:55:00+00:00 ===
+invoices=41 unique_lines=61 rejected_late=0
+  apple_pay: n=14 failures=0 rate=0.0%
+  card: n=7 failures=0 rate=0.0%
+  google_pay: n=12 failures=0 rate=0.0%
+  monobank: n=8 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:55:00+00:00 → 2026-10-01T00:56:00+00:00 ===
+invoices=34 unique_lines=53 rejected_late=0
+  apple_pay: n=14 failures=0 rate=0.0%
+  card: n=5 failures=0 rate=0.0%
+  google_pay: n=9 failures=0 rate=0.0%
+  monobank: n=6 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:56:00+00:00 → 2026-10-01T00:57:00+00:00 ===
+invoices=42 unique_lines=57 rejected_late=0
+  apple_pay: n=13 failures=0 rate=0.0%
+  card: n=10 failures=0 rate=0.0%
+  google_pay: n=9 failures=1 rate=11.1%  *** ALERT: failures > 10% ***
+  monobank: n=10 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:57:00+00:00 → 2026-10-01T00:58:00+00:00 ===
+invoices=32 unique_lines=51 rejected_late=0
+  apple_pay: n=8 failures=2 rate=25.0%  *** ALERT: failures > 10% ***
+  card: n=8 failures=0 rate=0.0%
+  google_pay: n=6 failures=0 rate=0.0%
+  monobank: n=10 failures=1 rate=10.0%
+
+=== WINDOW 2026-10-01T00:58:00+00:00 → 2026-10-01T00:59:00+00:00 ===
+invoices=42 unique_lines=58 rejected_late=0
+  apple_pay: n=9 failures=0 rate=0.0%
+  card: n=13 failures=0 rate=0.0%
+  google_pay: n=9 failures=1 rate=11.1%  *** ALERT: failures > 10% ***
+  monobank: n=11 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T00:59:00+00:00 → 2026-10-01T01:00:00+00:00 ===
+invoices=54 unique_lines=88 rejected_late=0
+  apple_pay: n=20 failures=0 rate=0.0%
+  card: n=15 failures=1 rate=6.7%
+  google_pay: n=10 failures=0 rate=0.0%
+  monobank: n=9 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T01:00:00+00:00 → 2026-10-01T01:01:00+00:00 ===
+invoices=42 unique_lines=63 rejected_late=0
+  apple_pay: n=15 failures=1 rate=6.7%
+  card: n=7 failures=0 rate=0.0%
+  google_pay: n=13 failures=1 rate=7.7%
+  monobank: n=7 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T01:01:00+00:00 → 2026-10-01T01:02:00+00:00 ===
+invoices=40 unique_lines=58 rejected_late=0
+  apple_pay: n=18 failures=1 rate=5.6%
+  card: n=7 failures=0 rate=0.0%
+  google_pay: n=6 failures=1 rate=16.7%  *** ALERT: failures > 10% ***
+  monobank: n=9 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T01:02:00+00:00 → 2026-10-01T01:03:00+00:00 ===
+invoices=47 unique_lines=72 rejected_late=0
+  apple_pay: n=10 failures=1 rate=10.0%
+  card: n=9 failures=0 rate=0.0%
+  google_pay: n=12 failures=0 rate=0.0%
+  monobank: n=16 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T01:03:00+00:00 → 2026-10-01T01:04:00+00:00 ===
+invoices=40 unique_lines=56 rejected_late=0
+  apple_pay: n=7 failures=2 rate=28.6%  *** ALERT: failures > 10% ***
+  card: n=12 failures=0 rate=0.0%
+  google_pay: n=10 failures=1 rate=10.0%
+  monobank: n=11 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T01:04:00+00:00 → 2026-10-01T01:05:00+00:00 ===
+invoices=43 unique_lines=67 rejected_late=0
+  apple_pay: n=10 failures=0 rate=0.0%
+  card: n=9 failures=1 rate=11.1%  *** ALERT: failures > 10% ***
+  google_pay: n=10 failures=0 rate=0.0%
+  monobank: n=14 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T01:05:00+00:00 → 2026-10-01T01:06:00+00:00 ===
+invoices=33 unique_lines=54 rejected_late=0
+  apple_pay: n=8 failures=0 rate=0.0%
+  card: n=10 failures=0 rate=0.0%
+  google_pay: n=8 failures=0 rate=0.0%
+  monobank: n=7 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T01:06:00+00:00 → 2026-10-01T01:07:00+00:00 ===
+invoices=36 unique_lines=53 rejected_late=0
+  apple_pay: n=10 failures=0 rate=0.0%
+  card: n=8 failures=0 rate=0.0%
+  google_pay: n=11 failures=1 rate=9.1%
+  monobank: n=7 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T01:07:00+00:00 → 2026-10-01T01:08:00+00:00 ===
+invoices=41 unique_lines=54 rejected_late=0
+  apple_pay: n=11 failures=0 rate=0.0%
+  card: n=7 failures=0 rate=0.0%
+  google_pay: n=11 failures=2 rate=18.2%  *** ALERT: failures > 10% ***
+  monobank: n=12 failures=1 rate=8.3%
+
+=== WINDOW 2026-10-01T01:08:00+00:00 → 2026-10-01T01:09:00+00:00 ===
+invoices=43 unique_lines=66 rejected_late=0
+  apple_pay: n=10 failures=0 rate=0.0%
+  card: n=13 failures=1 rate=7.7%
+  google_pay: n=9 failures=0 rate=0.0%
+  monobank: n=11 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T01:09:00+00:00 → 2026-10-01T01:10:00+00:00 ===
+invoices=44 unique_lines=67 rejected_late=0
+  apple_pay: n=17 failures=1 rate=5.9%
+  card: n=8 failures=0 rate=0.0%
+  google_pay: n=10 failures=1 rate=10.0%
+  monobank: n=9 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T01:10:00+00:00 → 2026-10-01T01:11:00+00:00 ===
+invoices=41 unique_lines=69 rejected_late=0
+  apple_pay: n=8 failures=0 rate=0.0%
+  card: n=9 failures=0 rate=0.0%
+  google_pay: n=11 failures=1 rate=9.1%
+  monobank: n=13 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T01:11:00+00:00 → 2026-10-01T01:12:00+00:00 ===
+invoices=49 unique_lines=67 rejected_late=0
+  apple_pay: n=11 failures=0 rate=0.0%
+  card: n=12 failures=0 rate=0.0%
+  google_pay: n=13 failures=0 rate=0.0%
+  monobank: n=13 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T01:12:00+00:00 → 2026-10-01T01:13:00+00:00 ===
+invoices=47 unique_lines=72 rejected_late=0
+  apple_pay: n=12 failures=1 rate=8.3%
+  card: n=11 failures=0 rate=0.0%
+  google_pay: n=11 failures=0 rate=0.0%
+  monobank: n=13 failures=2 rate=15.4%  *** ALERT: failures > 10% ***
+
+=== WINDOW 2026-10-01T01:13:00+00:00 → 2026-10-01T01:14:00+00:00 ===
+invoices=49 unique_lines=68 rejected_late=0
+  apple_pay: n=15 failures=0 rate=0.0%
+  card: n=11 failures=0 rate=0.0%
+  google_pay: n=8 failures=3 rate=37.5%  *** ALERT: failures > 10% ***
+  monobank: n=15 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T01:14:00+00:00 → 2026-10-01T01:15:00+00:00 ===
+invoices=41 unique_lines=57 rejected_late=0
+  apple_pay: n=11 failures=1 rate=9.1%
+  card: n=14 failures=1 rate=7.1%
+  google_pay: n=5 failures=0 rate=0.0%
+  monobank: n=11 failures=1 rate=9.1%
+
+=== WINDOW 2026-10-01T01:15:00+00:00 → 2026-10-01T01:16:00+00:00 ===
+invoices=41 unique_lines=61 rejected_late=0
+  apple_pay: n=8 failures=0 rate=0.0%
+  card: n=11 failures=1 rate=9.1%
+  google_pay: n=11 failures=1 rate=9.1%
+  monobank: n=11 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T01:16:00+00:00 → 2026-10-01T01:17:00+00:00 ===
+invoices=62 unique_lines=96 rejected_late=0
+  apple_pay: n=18 failures=0 rate=0.0%
+  card: n=16 failures=0 rate=0.0%
+  google_pay: n=13 failures=2 rate=15.4%  *** ALERT: failures > 10% ***
+  monobank: n=15 failures=0 rate=0.0%
+
+=== WINDOW 2026-10-01T01:17:00+00:00 → 2026-10-01T01:18:00+00:00 ===
+invoices=38 unique_lines=45 rejected_late=0
+  apple_pay: n=15 failures=1 rate=6.7%
+  card: n=8 failures=1 rate=12.5%  *** ALERT: failures > 10% ***
+  google_pay: n=5 failures=0 rate=0.0%
+  monobank: n=10 failures=1 rate=10.0%
+
+SUMMARY closed_windows=78 alerts=45 events=5200 duplicates=251 rejected_late_total=0
+assigned_partitions= ["TopicPartition(topic='payments', partition=0)"]

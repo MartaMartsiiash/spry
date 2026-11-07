@@ -1,0 +1,41 @@
+{
+    "QueryExecution": {
+        "QueryExecutionId": "0ca074ad-c671-404c-8890-7330459d7f83",
+        "Query": "WITH c AS (\n  SELECT invoiceId, status, amount, finalAmount, ccy, reference, createdDate, modifiedDate, receivedAt,\n         merchantId, merchantName, mcc, customerId, paymentMethod, device, failureReason, COUNT(*) AS n\n  FROM lab8.payment_events\n  GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16\n)\nSELECT\n  SUM(n) AS total_rows,\n  COUNT(*) AS unique_rows,\n  SUM(n) - COUNT(*) AS exact_duplicate_extra_rows\nFROM c",
+        "StatementType": "DML",
+        "ResultConfiguration": {
+            "OutputLocation": "s3://successfulsuccess-lab8-payments-378600555796/athena-results/0ca074ad-c671-404c-8890-7330459d7f83.csv"
+        },
+        "ResultReuseConfiguration": {
+            "ResultReuseByAgeConfiguration": {
+                "Enabled": false
+            }
+        },
+        "QueryExecutionContext": {
+            "Database": "lab8"
+        },
+        "Status": {
+            "State": "SUCCEEDED",
+            "SubmissionDateTime": "2026-11-01T18:06:55.446000+02:00",
+            "CompletionDateTime": "2026-11-01T18:06:57.649000+02:00"
+        },
+        "Statistics": {
+            "EngineExecutionTimeInMillis": 2019,
+            "DataScannedInBytes": 1149712778,
+            "TotalExecutionTimeInMillis": 2203,
+            "QueryQueueTimeInMillis": 114,
+            "ServicePreProcessingTimeInMillis": 45,
+            "QueryPlanningTimeInMillis": 350,
+            "ServiceProcessingTimeInMillis": 25,
+            "ResultReuseInformation": {
+                "ReusedPreviousResult": false
+            }
+        },
+        "WorkGroup": "primary",
+        "EngineVersion": {
+            "SelectedEngineVersion": "AUTO",
+            "EffectiveEngineVersion": "Athena engine version 3"
+        },
+        "SubstatementType": "SELECT"
+    }
+}

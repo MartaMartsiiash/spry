@@ -1,0 +1,41 @@
+{
+    "QueryExecution": {
+        "QueryExecutionId": "0adf11b6-87f0-4bbe-9877-c1f020fb1680",
+        "Query": "-- Turnover by merchant and currency (successful payments only), whole units\nSELECT\n  merchantId,\n  merchantName,\n  ccy,\n  COUNT(*) AS success_payments,\n  ROUND(SUM(finalAmount) / 100.0, 2) AS turnover\nFROM lab8.payments\nWHERE status = 'success'\nGROUP BY merchantId, merchantName, ccy\nORDER BY turnover DESC",
+        "StatementType": "DML",
+        "ResultConfiguration": {
+            "OutputLocation": "s3://successfulsuccess-lab8-payments-378600555796/athena-results/0adf11b6-87f0-4bbe-9877-c1f020fb1680.csv"
+        },
+        "ResultReuseConfiguration": {
+            "ResultReuseByAgeConfiguration": {
+                "Enabled": false
+            }
+        },
+        "QueryExecutionContext": {
+            "Database": "lab8"
+        },
+        "Status": {
+            "State": "SUCCEEDED",
+            "SubmissionDateTime": "2026-11-01T18:07:05.943000+02:00",
+            "CompletionDateTime": "2026-11-01T18:07:09.783000+02:00"
+        },
+        "Statistics": {
+            "EngineExecutionTimeInMillis": 3674,
+            "DataScannedInBytes": 1149712778,
+            "TotalExecutionTimeInMillis": 3840,
+            "QueryQueueTimeInMillis": 98,
+            "ServicePreProcessingTimeInMillis": 39,
+            "QueryPlanningTimeInMillis": 301,
+            "ServiceProcessingTimeInMillis": 29,
+            "ResultReuseInformation": {
+                "ReusedPreviousResult": false
+            }
+        },
+        "WorkGroup": "primary",
+        "EngineVersion": {
+            "SelectedEngineVersion": "AUTO",
+            "EffectiveEngineVersion": "Athena engine version 3"
+        },
+        "SubstatementType": "SELECT"
+    }
+}

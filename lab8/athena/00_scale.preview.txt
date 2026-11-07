@@ -1,0 +1,2 @@
+events | unique_invoices | approx_exact_dup_rows_removed_if_distinct_star
+3007000 | 992445 | 29693

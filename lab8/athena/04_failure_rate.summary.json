@@ -1,0 +1,8 @@
+{
+  "file": "04_failure_rate.sql",
+  "qid": "2a6ed9c9-7a0f-42d8-9bc5-010e4c3911d3",
+  "state": "SUCCEEDED",
+  "data_scanned_bytes": 1149712778,
+  "engine_ms": 4147,
+  "total_ms": 4308
+}

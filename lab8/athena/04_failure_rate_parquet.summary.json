@@ -1,0 +1,8 @@
+{
+  "file": "04_failure_rate_parquet.sql",
+  "qid": "e8da1c32-11e2-4513-8bee-b234e2194ce5",
+  "state": "SUCCEEDED",
+  "data_scanned_bytes": 677835,
+  "engine_ms": 724,
+  "total_ms": 893
+}

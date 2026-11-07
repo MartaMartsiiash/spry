@@ -1,0 +1,12 @@
+export REGION=eu-north-1
+export ACCOUNT=378600555796
+export BUCKET=successfulsuccess-lab8-payments-378600555796
+export QUEUE_URL=https://sqs.eu-north-1.amazonaws.com/378600555796/lab8-payments-stream
+export QUEUE_ARN=arn:aws:sqs:eu-north-1:378600555796:lab8-payments-stream
+export TOPIC_ARN=arn:aws:sns:eu-north-1:378600555796:lab8-payment-alerts
+export ROLE_ARN=arn:aws:iam::378600555796:role/lab8-stream-lambda-role
+export ROLE_NAME=lab8-stream-lambda-role
+export STREAM_PREFIX=stream
+export FN_ARN=arn:aws:lambda:eu-north-1:378600555796:function:lab8-payments-stream-processor
+export FN_NAME=lab8-payments-stream-processor
+export ESM=486edbed-9534-4b37-a3d3-a86a13dc74f1

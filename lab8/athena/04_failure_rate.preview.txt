@@ -1,0 +1,13 @@
+paymentMethod | device | payments | failures | failure_rate_pct
+apple_pay | android | 82560 | 6709 | 8.13
+card | android | 82401 | 6691 | 8.12
+card | web | 82712 | 6693 | 8.09
+monobank | android | 82961 | 6686 | 8.06
+google_pay | android | 82804 | 6653 | 8.03
+google_pay | ios | 82500 | 6617 | 8.02
+monobank | ios | 83167 | 6657 | 8.0
+google_pay | web | 82852 | 6602 | 7.97
+apple_pay | ios | 82530 | 6576 | 7.97
+monobank | web | 82664 | 6552 | 7.93
+apple_pay | web | 82951 | 6581 | 7.93
+card | ios | 82343 | 6502 | 7.9

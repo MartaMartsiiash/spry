@@ -1,0 +1,2 @@
+total_rows | unique_rows | exact_duplicate_extra_rows
+3007000 | 2977307 | 29693

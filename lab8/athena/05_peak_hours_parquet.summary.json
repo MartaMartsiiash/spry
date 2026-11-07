@@ -1,0 +1,8 @@
+{
+  "file": "05_peak_hours_parquet.sql",
+  "qid": "55a124c7-ab5d-421f-81d3-9a3430f6fb75",
+  "state": "SUCCEEDED",
+  "data_scanned_bytes": 6513908,
+  "engine_ms": 1150,
+  "total_ms": 1312
+}

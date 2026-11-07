@@ -1,0 +1,41 @@
+{
+    "QueryExecution": {
+        "QueryExecutionId": "2a6ed9c9-7a0f-42d8-9bc5-010e4c3911d3",
+        "Query": "SELECT\n  paymentMethod,\n  device,\n  COUNT(*) AS payments,\n  SUM(CASE WHEN status = 'failure' THEN 1 ELSE 0 END) AS failures,\n  ROUND(\n    100.0 * SUM(CASE WHEN status = 'failure' THEN 1 ELSE 0 END) / COUNT(*),\n    2\n  ) AS failure_rate_pct\nFROM lab8.payments\nGROUP BY paymentMethod, device\nORDER BY failure_rate_pct DESC",
+        "StatementType": "DML",
+        "ResultConfiguration": {
+            "OutputLocation": "s3://successfulsuccess-lab8-payments-378600555796/athena-results/2a6ed9c9-7a0f-42d8-9bc5-010e4c3911d3.csv"
+        },
+        "ResultReuseConfiguration": {
+            "ResultReuseByAgeConfiguration": {
+                "Enabled": false
+            }
+        },
+        "QueryExecutionContext": {
+            "Database": "lab8"
+        },
+        "Status": {
+            "State": "SUCCEEDED",
+            "SubmissionDateTime": "2026-11-01T18:07:12.670000+02:00",
+            "CompletionDateTime": "2026-11-01T18:07:16.978000+02:00"
+        },
+        "Statistics": {
+            "EngineExecutionTimeInMillis": 4147,
+            "DataScannedInBytes": 1149712778,
+            "TotalExecutionTimeInMillis": 4308,
+            "QueryQueueTimeInMillis": 87,
+            "ServicePreProcessingTimeInMillis": 48,
+            "QueryPlanningTimeInMillis": 347,
+            "ServiceProcessingTimeInMillis": 26,
+            "ResultReuseInformation": {
+                "ReusedPreviousResult": false
+            }
+        },
+        "WorkGroup": "primary",
+        "EngineVersion": {
+            "SelectedEngineVersion": "AUTO",
+            "EffectiveEngineVersion": "Athena engine version 3"
+        },
+        "SubstatementType": "SELECT"
+    }
+}

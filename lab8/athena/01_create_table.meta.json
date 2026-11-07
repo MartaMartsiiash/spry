@@ -1,0 +1,40 @@
+{
+    "QueryExecution": {
+        "QueryExecutionId": "d3c495b1-54fc-49f3-86ed-990dff2284e1",
+        "Query": "CREATE EXTERNAL TABLE IF NOT EXISTS lab8.payment_events (\n  invoiceId string,\n  status string,\n  failureReason string,\n  amount bigint,\n  finalAmount bigint,\n  ccy int,\n  reference string,\n  createdDate string,\n  modifiedDate string,\n  receivedAt string,\n  merchantId string,\n  merchantName string,\n  mcc string,\n  customerId string,\n  paymentMethod string,\n  device string\n)\nPARTITIONED BY (dt string)\nROW FORMAT SERDE 'org.openx.data.jsonserde.JsonSerDe'\nWITH SERDEPROPERTIES (\n  'ignore.malformed.json' = 'true'\n)\nSTORED AS TEXTFILE\nLOCATION 's3://successfulsuccess-lab8-payments-378600555796/payments/'\nTBLPROPERTIES ('has_encrypted_data'='false')",
+        "StatementType": "DDL",
+        "ResultConfiguration": {
+            "OutputLocation": "s3://successfulsuccess-lab8-payments-378600555796/athena-results/d3c495b1-54fc-49f3-86ed-990dff2284e1.txt"
+        },
+        "ResultReuseConfiguration": {
+            "ResultReuseByAgeConfiguration": {
+                "Enabled": false
+            }
+        },
+        "QueryExecutionContext": {
+            "Database": "lab8"
+        },
+        "Status": {
+            "State": "SUCCEEDED",
+            "SubmissionDateTime": "2026-11-01T18:06:23.908000+02:00",
+            "CompletionDateTime": "2026-11-01T18:06:24.374000+02:00"
+        },
+        "Statistics": {
+            "EngineExecutionTimeInMillis": 377,
+            "DataScannedInBytes": 0,
+            "TotalExecutionTimeInMillis": 466,
+            "QueryQueueTimeInMillis": 46,
+            "ServicePreProcessingTimeInMillis": 19,
+            "ServiceProcessingTimeInMillis": 24,
+            "ResultReuseInformation": {
+                "ReusedPreviousResult": false
+            }
+        },
+        "WorkGroup": "primary",
+        "EngineVersion": {
+            "SelectedEngineVersion": "AUTO",
+            "EffectiveEngineVersion": "Athena engine version 3"
+        },
+        "SubstatementType": "CREATE_TABLE"
+    }
+}

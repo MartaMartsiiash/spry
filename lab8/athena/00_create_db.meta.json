@@ -1,0 +1,38 @@
+{
+    "QueryExecution": {
+        "QueryExecutionId": "bcc4001a-a14d-43f6-8bff-02970cb14fda",
+        "Query": "CREATE DATABASE IF NOT EXISTS lab8",
+        "StatementType": "DDL",
+        "ResultConfiguration": {
+            "OutputLocation": "s3://successfulsuccess-lab8-payments-378600555796/athena-results/bcc4001a-a14d-43f6-8bff-02970cb14fda.txt"
+        },
+        "ResultReuseConfiguration": {
+            "ResultReuseByAgeConfiguration": {
+                "Enabled": false
+            }
+        },
+        "QueryExecutionContext": {},
+        "Status": {
+            "State": "SUCCEEDED",
+            "SubmissionDateTime": "2026-11-01T18:06:19.556000+02:00",
+            "CompletionDateTime": "2026-11-01T18:06:20.049000+02:00"
+        },
+        "Statistics": {
+            "EngineExecutionTimeInMillis": 375,
+            "DataScannedInBytes": 0,
+            "TotalExecutionTimeInMillis": 493,
+            "QueryQueueTimeInMillis": 81,
+            "ServicePreProcessingTimeInMillis": 16,
+            "ServiceProcessingTimeInMillis": 21,
+            "ResultReuseInformation": {
+                "ReusedPreviousResult": false
+            }
+        },
+        "WorkGroup": "primary",
+        "EngineVersion": {
+            "SelectedEngineVersion": "AUTO",
+            "EffectiveEngineVersion": "Athena engine version 3"
+        },
+        "SubstatementType": "CREATE_DATABASE"
+    }
+}
