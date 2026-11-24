@@ -4,11 +4,14 @@ region       = "eu-north-1"
 callback_urls = [
   "http://localhost:3000/auth/callback/",
   "https://d3u0mle6pgsfus.cloudfront.net/auth/callback/",
+  # Lab 9: the same app on Firebase Hosting (Google Cloud)
+  "https://spry-martsiiash-2026.web.app/auth/callback/",
 ]
 
 logout_urls = [
   "http://localhost:3000/",
   "https://d3u0mle6pgsfus.cloudfront.net/",
+  "https://spry-martsiiash-2026.web.app/",
 ]
 
 google_client_id = "503685285836-9ptnnraovs2u0j31olgaonh6c915dji0.apps.googleusercontent.com"
@@ -24,7 +27,7 @@ recipient_email = "martsiiash.pn@ucu.edu.ua"
 sender_domain   = ""
 app_timezone    = "Europe/Kyiv"
 schedule_expression = "cron(0 7 ? * MON *)"
-cors_origins    = "https://d3u0mle6pgsfus.cloudfront.net"
+cors_origins    = "https://d3u0mle6pgsfus.cloudfront.net,https://spry-martsiiash-2026.web.app"
 parser_model    = "eu.anthropic.claude-sonnet-4-6"
 
 # Secrets (google_client_secret, database_url) live in the HCP workspace

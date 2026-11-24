@@ -31,7 +31,8 @@ RUN sed 's/\r$//' entrypoint.sh > /usr/local/bin/entrypoint.sh \
 RUN useradd --create-home --uid 1000 appuser && chown -R appuser:appuser /app
 USER appuser
 
+# Cloud Run sends traffic to $PORT (8080); locally and in compose it stays 8000.
 EXPOSE 8000
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers --forwarded-allow-ips=*"]

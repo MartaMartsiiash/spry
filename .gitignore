@@ -26,3 +26,7 @@ tfplan
 crash.log
 infra/generated.tf
 infra/.build/
+
+# Firebase / Terraform (gcp/)
+frontend/.firebase/
+gcp/.terraform/
