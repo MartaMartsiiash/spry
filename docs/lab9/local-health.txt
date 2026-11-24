@@ -1,0 +1,14 @@
+$ docker compose up -d db
+$ docker build -t spry-backend:cloudrun ./backend
+$ docker run -d --name spry-api --network successfulsuccess_default \
+    -p 8080:8080 -e PORT=8080 \
+    -e DATABASE_URL="postgresql+asyncpg://app:<from .env>@db:5432/meetings" \
+    -e CORS_ORIGINS=http://localhost:3000 \
+    -e COGNITO_REGION=eu-north-1 \
+    -e COGNITO_USER_POOL_ID=eu-north-1_8JgjHup8F \
+    -e COGNITO_CLIENT_ID=7ridr6t0t0bqmn16s25uu2qsc5 \
+    spry-backend:cloudrun
+87c472cf2556f3bf6076f858364403c9d500fba7fe4572245b32dfe6daece3d7
+
+$ curl http://localhost:8080/health
+{"status":"ok","database":"ok","version":"1.0.0"}
