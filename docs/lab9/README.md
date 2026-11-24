@@ -39,10 +39,29 @@ docker compose (8000), and as Cloud Run would run it (8080).
   `Access-Control-Allow-Origin: http://localhost:3000`.
   (The bearer token is cut off in the screenshot on purpose.)
 
-## 2. Terraform for Google Cloud
+## 2. Demos without billing (Part 4)
+
+- **Colab notebook** (DuckDB instead of BigQuery, Tesseract/EasyOCR instead of Vision API,
+  Qwen3-VL 2B instead of Document AI, my prompt for the invoice → JSON):
+  https://colab.research.google.com/drive/1i0kXwKMX9olLGdNXxZBh-SIu9KYHtwDn
+  — run on a free Tesla T4: page → Markdown in 30 s; prompt A (Markdown) 8/9 fields in 2 s,
+  B (image) 8/9 fields in 3 s; the only miss in both is a typo in the seller's street
+  ("Kozelnyska" instead of "Kozelnytska").
+- **Looker Studio (Data Studio) dashboard** over the Our World in Data CO₂ dataset — line chart
+  (Germany, Ukraine, Poland), geo chart (CO₂ per capita, 2025), top-10 countries by CO₂ in 2025
+  (aggregates such as *World* excluded with `iso_code` matching `^[A-Z]{3}$`) and a drop-down
+  control on `country`:
+  https://datastudio.google.com/reporting/39c4c6de-e224-4dd1-903b-4c7513008586
+  — screenshot: `looker-dashboard.png`.
+
+## 3. Terraform for Google Cloud
 
 The configuration is in [`gcp/`](../../gcp), separate from the AWS one in
 `infra/`, with its own HCP Terraform workspace. See
 [ADR 0008](../adr/0008-spry-on-google-cloud.md) for the service choices.
 `terraform init -backend=false` and `terraform validate` run without Google
 credentials — output in `terraform-validate.txt`.
+
+## 4. Cost table
+
+`cost-table.md` — Spry's core on AWS and Google Cloud for the four traffic profiles from Lab 4.
